@@ -3,19 +3,23 @@ package components
 import "github.com/rivo/tview"
 
 type Components struct {
-	Sidebar     *tview.List
-	EditorPanel *EditorPanel
-	Layout      *tview.Flex
+	TviewApp  *tview.Application
+	Sidebar   *tview.List
+	InputUrl  *tview.Flex
+	Attribute *tview.Flex
+	Response  *tview.Flex
+	Layout    *tview.Flex
 }
 
-func NewComponents() *Components {
+func NewComponents(app *tview.Application) *Components {
 	cmp := &Components{
-		Sidebar:     NewSidebar(),
-		EditorPanel: NewEditorPanel(),
+		TviewApp: app,
 	}
-
-	layout := NewLayout(cmp.Sidebar, NewEditorPanel())
-	cmp.Layout = layout
+	cmp.NewSidebar()
+	cmp.NewInputUrl()
+	cmp.NewAttribute()
+	cmp.NewResponse()
+	cmp.NewLayout()
 
 	return cmp
 }

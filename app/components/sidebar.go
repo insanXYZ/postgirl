@@ -1,9 +1,12 @@
 package components
 
-import "github.com/rivo/tview"
+import (
+	"github.com/rivo/tview"
+)
 
-func NewSidebar() *tview.List {
+func (c *Components) NewSidebar() {
 	list := tview.NewList()
 	list.AddItem("item 1", "", 'a', nil)
-	return list
+	list.SetBorder(true)
+	c.Sidebar = list
 }

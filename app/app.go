@@ -12,12 +12,12 @@ type App struct {
 }
 
 func NewApp() *App {
-	return &App{
-		tviewApp:   tview.NewApplication(),
-		components: components.NewComponents(),
-	}
+	app := &App{}
+	app.tviewApp = tview.NewApplication()
+	app.components = components.NewComponents(app.tviewApp)
+	return app
 }
 
 func (a *App) Run() error {
-	return a.tviewApp.SetRoot(a.components.Root(), true).Run()
+	return a.tviewApp.SetRoot(a.components.Root(), true).EnableMouse(true).Run()
 }
