@@ -3,10 +3,14 @@ package components
 import "github.com/rivo/tview"
 
 func (c *Components) NewResponse() {
+
+	bodyButton := tview.NewButton("Body")
+	headersButton := tview.NewButton("Headers")
+
 	responseMenu := tview.NewFlex()
-	responseMenu.AddItem(tview.NewButton("Body"), 10, 1, false)
+	responseMenu.AddItem(bodyButton, 10, 1, false)
 	responseMenu.AddItem(tview.NewBox(), 1, 1, false)
-	responseMenu.AddItem(tview.NewButton("Headers"), 10, 1, false)
+	responseMenu.AddItem(headersButton, 10, 1, false)
 	responseMenu.SetBorder(true)
 
 	responseTextArea := tview.NewTextArea()

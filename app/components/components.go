@@ -1,19 +1,24 @@
 package components
 
-import "github.com/rivo/tview"
+import (
+	"github.com/epiclabs-io/winman"
+	"github.com/rivo/tview"
+)
 
 type Components struct {
 	TviewApp  *tview.Application
-	Sidebar   *tview.List
+	Winman    *winman.Manager
+	Sidebar   *tview.Flex
 	InputUrl  *tview.Flex
 	Attribute *tview.Flex
 	Response  *tview.Flex
 	Layout    *tview.Flex
 }
 
-func NewComponents(app *tview.Application) *Components {
+func NewComponents(app *tview.Application, winman *winman.Manager) *Components {
 	cmp := &Components{
 		TviewApp: app,
+		Winman:   winman,
 	}
 	cmp.NewSidebar()
 	cmp.NewInputUrl()

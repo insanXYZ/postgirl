@@ -16,6 +16,11 @@ func (c *Components) NewAttribute() {
 	flexButton.AddItem(tview.NewBox(), 1, 1, false)
 	flexButton.SetBorder(true)
 
+	flexAttribute := tview.NewFlex()
+	flexAttribute.SetDirection(tview.FlexRow)
+	flexAttribute.AddItem(flexButton, 3, 1, false)
+	flexAttribute.AddItem(tview.NewBox().SetBorder(true), 10, 1, false)
+
 	removedBodyDropdown := func() {
 		if flexButton.GetItemCount() == 7 {
 			go c.TviewApp.QueueUpdateDraw(func() {
@@ -27,10 +32,18 @@ func (c *Components) NewAttribute() {
 	bodyButton.SetSelectedFunc(func() {
 		go c.TviewApp.QueueUpdateDraw(func() {
 			dropdownBody := tview.NewDropDown()
-			dropdownBody.AddOption("form-data", nil)
-			dropdownBody.AddOption("x-www-form-urlencoded", nil)
-			dropdownBody.AddOption("json", nil)
-			dropdownBody.AddOption("xml", nil)
+
+			dropdownBody.SetOptions(
+				[]string{"none",
+					"form-data",
+					"x-www-form-urlencoded",
+					"json",
+					"xml"},
+
+				func(text string, index int) {
+
+				},
+			)
 
 			flexButton.AddItem(dropdownBody, 15, 1, false)
 		})
@@ -43,11 +56,6 @@ func (c *Components) NewAttribute() {
 	headersButton.SetSelectedFunc(func() {
 		removedBodyDropdown()
 	})
-
-	flexAttribute := tview.NewFlex()
-	flexAttribute.SetDirection(tview.FlexRow)
-	flexAttribute.AddItem(flexButton, 3, 1, false)
-	flexAttribute.AddItem(tview.NewBox().SetBorder(true), 10, 1, false)
 
 	c.Attribute = flexAttribute
 }

@@ -18,9 +18,10 @@ func (c *Components) NewInputUrl() {
 
 	flex := tview.NewFlex()
 	flex.SetBorder(true)
-	flex.AddItem(methodDropdown, 0, 1, false)
+	flex.AddItem(methodDropdown, 9, 1, false)
 	flex.AddItem(input, 0, 1, false)
-	flex.AddItem(submitButton, 5, 1, false)
+	flex.AddItem(tview.NewBox(), 1, 1, false)
+	flex.AddItem(submitButton, 6, 1, false)
 
 	c.InputUrl = flex
 }
