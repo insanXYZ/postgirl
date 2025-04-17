@@ -6,15 +6,24 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (c *Components) NewInputUrl() {
+func (e *EditorPanel) NewInputUrl() {
 	methodDropdown := tview.NewDropDown()
 	methodDropdown.SetOptions([]string{
 		http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions,
-	}, nil)
+	}, func(text string, index int) {
+		e.method = text
+	})
+	methodDropdown.SetCurrentOption(0)
 
 	input := tview.NewInputField()
+	input.SetChangedFunc(func(text string) {
+		e.url = text
+	})
 
 	submitButton := tview.NewButton("send")
+	submitButton.SetSelectedFunc(func() {
+		e.submit <- true
+	})
 
 	flex := tview.NewFlex()
 	flex.SetBorder(true)
@@ -23,5 +32,5 @@ func (c *Components) NewInputUrl() {
 	flex.AddItem(tview.NewBox(), 1, 1, false)
 	flex.AddItem(submitButton, 6, 1, false)
 
-	c.InputUrl = flex
+	e.inputUrl = flex
 }

@@ -1,29 +1,19 @@
 package components
 
 import (
-	"github.com/epiclabs-io/winman"
 	"github.com/rivo/tview"
 )
 
 type Components struct {
-	TviewApp  *tview.Application
-	Winman    *winman.Manager
-	Sidebar   *tview.Flex
-	InputUrl  *tview.Flex
-	Attribute *tview.Flex
-	Response  *tview.Flex
-	Layout    *tview.Flex
+	Sidebar     *Sidebar
+	EditorPanel *EditorPanel
+	Layout      *tview.Flex
 }
 
-func NewComponents(app *tview.Application, winman *winman.Manager) *Components {
-	cmp := &Components{
-		TviewApp: app,
-		Winman:   winman,
-	}
+func NewComponents() *Components {
+	cmp := &Components{}
 	cmp.NewSidebar()
-	cmp.NewInputUrl()
-	cmp.NewAttribute()
-	cmp.NewResponse()
+	cmp.NewEditorPanel()
 	cmp.NewLayout()
 
 	return cmp

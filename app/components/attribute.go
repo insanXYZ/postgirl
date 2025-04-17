@@ -1,8 +1,12 @@
 package components
 
-import "github.com/rivo/tview"
+import (
+	"postgirl/app/lib"
 
-func (c *Components) NewAttribute() {
+	"github.com/rivo/tview"
+)
+
+func (e *EditorPanel) NewAttribute() {
 	paramsButton := tview.NewButton("Params")
 	headersButton := tview.NewButton("Headers")
 	bodyButton := tview.NewButton("Body")
@@ -23,14 +27,14 @@ func (c *Components) NewAttribute() {
 
 	removedBodyDropdown := func() {
 		if flexButton.GetItemCount() == 7 {
-			go c.TviewApp.QueueUpdateDraw(func() {
+			lib.Tview.UpdateDraw(func() {
 				flexButton.RemoveItem(flexButton.GetItem(flexButton.GetItemCount() - 1))
 			})
 		}
 	}
 
 	bodyButton.SetSelectedFunc(func() {
-		go c.TviewApp.QueueUpdateDraw(func() {
+		lib.Tview.UpdateDraw(func() {
 			dropdownBody := tview.NewDropDown()
 
 			dropdownBody.SetOptions(
@@ -57,5 +61,5 @@ func (c *Components) NewAttribute() {
 		removedBodyDropdown()
 	})
 
-	c.Attribute = flexAttribute
+	e.attribute = flexAttribute
 }

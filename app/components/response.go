@@ -2,7 +2,7 @@ package components
 
 import "github.com/rivo/tview"
 
-func (c *Components) NewResponse() {
+func (e *EditorPanel) NewResponse() {
 
 	bodyButton := tview.NewButton("Body")
 	headersButton := tview.NewButton("Headers")
@@ -22,5 +22,5 @@ func (c *Components) NewResponse() {
 	flex.AddItem(responseMenu, 3, 1, false)
 	flex.AddItem(responseTextArea, 0, 1, false)
 
-	c.Response = flex
+	e.response = flex
 }

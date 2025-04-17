@@ -1,37 +1,56 @@
 package components
 
 import (
-	"github.com/epiclabs-io/winman"
+	"fmt"
+	"postgirl/app/components/util"
+	"postgirl/app/lib"
+
 	"github.com/rivo/tview"
 )
 
+type Sidebar struct {
+	list *tview.List
+	root *tview.Flex
+}
+
 func (c *Components) NewSidebar() {
+	sidebar := Sidebar{}
+	sidebar.NewList()
 
-	showAddRequest := func() {
-		content := tview.NewTextView().SetText("insan")
+	c.Sidebar = &sidebar
+}
 
-		wm := winman.NewWindow().Show()
-		wm.SetTitle("✏️ add request")
-		wm.SetRoot(content)
-		wm.SetModal(true)
-		wm.SetBorder(true)
+func (s *Sidebar) NewList() {
 
-		c.Winman.AddWindow(wm)
-		c.Winman.Center(wm)
+	showModalAddRequest := func() {
+		var name string
 
-		go c.TviewApp.QueueUpdateDraw(func() {
-			c.TviewApp.SetFocus(wm)
+		form := tview.NewForm()
+		form.AddInputField("name", "", 0, nil, func(text string) {
+			name = text
 		})
+		form.AddButton("create", func() {
+			lib.Tview.Stop()
+			fmt.Println(name)
+		})
+
+		util.ShowModal(&util.ModalConfig{
+			Content: form,
+			Title:   "add request",
+			Width:   40,
+			Height:  7,
+		})
+
 	}
 
 	list := tview.NewList()
-	list.AddItem("item 1", "", 'a', nil)
 	list.SetBorder(true)
+	s.list = list
 
 	actionsFlex := tview.NewFlex()
 	actionsFlex.AddItem(tview.NewTextView().SetText("postgirl"), 10, 1, false)
 	actionsFlex.AddItem(tview.NewBox(), 0, 1, false)
-	actionsFlex.AddItem(tview.NewButton("+").SetSelectedFunc(showAddRequest), 3, 1, false)
+	actionsFlex.AddItem(tview.NewButton("+").SetSelectedFunc(showModalAddRequest), 3, 1, false)
 	actionsFlex.AddItem(tview.NewBox(), 1, 1, false)
 	actionsFlex.AddItem(tview.NewButton("i"), 3, 1, false)
 	actionsFlex.AddItem(tview.NewBox(), 1, 1, false)
@@ -42,5 +61,15 @@ func (c *Components) NewSidebar() {
 	sidebarFlex.AddItem(actionsFlex, 3, 1, false)
 	sidebarFlex.AddItem(list, 0, 1, false)
 
-	c.Sidebar = sidebarFlex
+	s.root = sidebarFlex
+}
+
+func (s *Sidebar) AddList(label string) {
+	lib.Tview.UpdateDraw(func() {
+		s.list.AddItem(label, "", ' ', nil)
+	})
+}
+
+func (s *Sidebar) Root() tview.Primitive {
+	return s.root
 }
