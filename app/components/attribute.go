@@ -6,7 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func (e *EditorPanel) NewAttribute() {
+func (r *RequestResponsePanel) NewAttribute() {
 	paramsButton := tview.NewButton("Params")
 	headersButton := tview.NewButton("Headers")
 	bodyButton := tview.NewButton("Body")
@@ -61,5 +61,5 @@ func (e *EditorPanel) NewAttribute() {
 		removedBodyDropdown()
 	})
 
-	e.attribute = flexAttribute
+	r.attribute = flexAttribute
 }

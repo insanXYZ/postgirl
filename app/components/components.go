@@ -5,15 +5,15 @@ import (
 )
 
 type Components struct {
-	Sidebar     *Sidebar
-	EditorPanel *EditorPanel
-	Layout      *tview.Flex
+	Sidebar              *Sidebar
+	RequestResponsePanel *RequestResponsePanel
+	Layout               *tview.Flex
 }
 
 func NewComponents() *Components {
 	cmp := &Components{}
 	cmp.NewSidebar()
-	cmp.NewEditorPanel()
+	cmp.NewRequestResponsePanel()
 	cmp.NewLayout()
 
 	return cmp

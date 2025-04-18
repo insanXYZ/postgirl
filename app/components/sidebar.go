@@ -2,7 +2,7 @@ package components
 
 import (
 	"fmt"
-	"postgirl/app/components/util"
+	"postgirl/app/components/common"
 	"postgirl/app/lib"
 
 	"github.com/rivo/tview"
@@ -34,7 +34,7 @@ func (s *Sidebar) NewList() {
 			fmt.Println(name)
 		})
 
-		util.ShowModal(&util.ModalConfig{
+		common.ShowModal(&common.ModalConfig{
 			Content: form,
 			Title:   "add request",
 			Width:   40,
