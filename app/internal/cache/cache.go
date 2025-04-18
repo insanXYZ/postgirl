@@ -1,29 +1,47 @@
 package cache
 
-import "postgirl/app/model"
+import (
+	"postgirl/app/model"
+)
 
-var CacheRequests *cacheRequests
+var (
+	CacheRequests *cacheRequests
+
+	//model.request values
+	DefaultParams  = make(map[string][]string)
+	DefaultHeaders = map[string]string{
+		"User-Agent":      "Postgirl/v1",
+		"Accept":          "*/*",
+		"Accept-Encoding": "gzip,deflate,br",
+		"Connection":      "keep-alive",
+	}
+)
 
 func init() {
-	CacheRequests = NewCacheRequest()
+	CacheRequests = newCacheRequest()
 }
 
 type cacheRequests struct {
-	caches map[string]model.Request
+	caches map[string]*model.Request
 }
 
-func NewCacheRequest() *cacheRequests {
+func newCacheRequest() *cacheRequests {
 	return &cacheRequests{
-		caches: make(map[string]model.Request),
+		caches: make(map[string]*model.Request),
 	}
 }
 
-func (c *cacheRequests) create(index string) {
-	if _, ok := c.caches[index]; !ok {
+func (c *cacheRequests) Create(label string) {
+	if _, ok := c.caches[label]; !ok {
 		r := model.Request{}
-		r.Attribute.Params = make(map[string]string)
-		r.Attribute.Headers = make(map[string]string)
+		r.Method = 0
+		r.Attribute.Params = DefaultParams
+		r.Attribute.Headers = DefaultHeaders
 
-		c.caches[index] = r
+		c.caches[label] = &r
 	}
+}
+
+func (c *cacheRequests) Get(label string) *model.Request {
+	return c.caches[label]
 }

@@ -1,23 +1,22 @@
 package components
 
 import (
-	"net/http"
+	"postgirl/app/model"
 
 	"github.com/rivo/tview"
 )
 
 func (r *RequestResponsePanel) NewInputUrl() {
 	methodDropdown := tview.NewDropDown()
-	methodDropdown.SetOptions([]string{
-		http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions,
-	}, func(text string, index int) {
-		r.method = text
+	methodDropdown.SetOptions(model.Methods, func(text string, index int) {
+		r.currentModel.Method = index
 	})
-	methodDropdown.SetCurrentOption(0)
+	methodDropdown.SetCurrentOption(r.currentModel.Method)
 
-	input := tview.NewInputField()
-	input.SetChangedFunc(func(text string) {
-		r.url = text
+	inputUrl := tview.NewInputField()
+	inputUrl.SetText(r.currentModel.Url)
+	inputUrl.SetChangedFunc(func(text string) {
+		r.currentModel.Url = text
 	})
 
 	submitButton := tview.NewButton("send")
@@ -28,7 +27,7 @@ func (r *RequestResponsePanel) NewInputUrl() {
 	flex := tview.NewFlex()
 	flex.SetBorder(true)
 	flex.AddItem(methodDropdown, 9, 1, false)
-	flex.AddItem(input, 0, 1, false)
+	flex.AddItem(inputUrl, 0, 1, false)
 	flex.AddItem(tview.NewBox(), 1, 1, false)
 	flex.AddItem(submitButton, 6, 1, false)
 

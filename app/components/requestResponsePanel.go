@@ -1,24 +1,22 @@
 package components
 
 import (
-	"postgirl/app/internal/request"
+	"fmt"
+	"postgirl/app/lib"
+	"postgirl/app/model"
 
 	"github.com/rivo/tview"
 )
 
 type RequestResponsePanel struct {
+	currentModel *model.Request
+
 	// inputurl
 	inputUrl *tview.Flex
-	method   string
-	url      string
 	submit   chan bool
 
 	//attribute
 	attribute *tview.Flex
-	params    map[string]string
-	headers   map[string]string
-	bodyType  string
-	body      string
 
 	//response
 	response *tview.Flex
@@ -27,11 +25,10 @@ type RequestResponsePanel struct {
 	root *tview.Flex
 }
 
-func (c *Components) NewRequestResponsePanel() {
+func (c *Components) NewRequestResponsePanel(req *model.Request) {
 	requestResponsePanel := RequestResponsePanel{
-		submit:  make(chan bool),
-		params:  make(map[string]string),
-		headers: make(map[string]string),
+		currentModel: req,
+		submit:       make(chan bool),
 	}
 
 	go requestResponsePanel.listenChan()
@@ -55,12 +52,14 @@ func (r *RequestResponsePanel) listenChan() {
 	for {
 		select {
 		case <-r.submit:
-			reqConfig := request.RequestConfig{
-				Method: r.method,
-				Url:    r.url,
-			}
+			lib.Tview.Stop()
+			fmt.Println("submit button")
+			// reqConfig := model.Request{
+			// 	Method: r.currentModel.Method,
+			// 	Url:    r.currentModel.Url,
+			// }
 
-			_ = request.NewRequest(&reqConfig)
+			// _ = request.NewRequest(&reqConfig)
 
 		}
 	}

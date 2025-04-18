@@ -5,15 +5,23 @@ import (
 )
 
 type Components struct {
-	Sidebar              *Sidebar
-	RequestResponsePanel *RequestResponsePanel
-	Layout               *tview.Flex
+	Sidebar *Sidebar
+
+	//panel
+	RequestResponsePanel     *RequestResponsePanel
+	RequestResponsePanelChan chan string
+
+	Layout *tview.Flex
 }
 
 func NewComponents() *Components {
-	cmp := &Components{}
+	cmp := &Components{
+		RequestResponsePanelChan: make(chan string),
+	}
+
+	go cmp.listenChangesRequestResponsePanel()
+
 	cmp.NewSidebar()
-	cmp.NewRequestResponsePanel()
 	cmp.NewLayout()
 
 	return cmp

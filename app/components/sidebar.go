@@ -1,20 +1,26 @@
 package components
 
 import (
-	"fmt"
 	"postgirl/app/components/common"
+	"postgirl/app/internal/cache"
 	"postgirl/app/lib"
 
+	"github.com/epiclabs-io/winman"
 	"github.com/rivo/tview"
 )
 
 type Sidebar struct {
 	list *tview.List
 	root *tview.Flex
+
+	//hook change panel
+	requestResponsePanelChan chan string
 }
 
 func (c *Components) NewSidebar() {
-	sidebar := Sidebar{}
+	sidebar := Sidebar{
+		requestResponsePanelChan: c.RequestResponsePanelChan,
+	}
 	sidebar.NewList()
 
 	c.Sidebar = &sidebar
@@ -24,17 +30,21 @@ func (s *Sidebar) NewList() {
 
 	showModalAddRequest := func() {
 		var name string
+		var modal *winman.WindowBase
 
 		form := tview.NewForm()
+
 		form.AddInputField("name", "", 0, nil, func(text string) {
 			name = text
 		})
+
 		form.AddButton("create", func() {
-			lib.Tview.Stop()
-			fmt.Println(name)
+			cache.CacheRequests.Create(name)
+			s.AddList(name)
+			common.RemoveModal(modal)
 		})
 
-		common.ShowModal(&common.ModalConfig{
+		modal = common.ShowModal(&common.ModalConfig{
 			Content: form,
 			Title:   "add request",
 			Width:   40,
@@ -66,7 +76,9 @@ func (s *Sidebar) NewList() {
 
 func (s *Sidebar) AddList(label string) {
 	lib.Tview.UpdateDraw(func() {
-		s.list.AddItem(label, "", ' ', nil)
+		s.list.AddItem(label, "", 'ཀ', func() {
+			s.requestResponsePanelChan <- label
+		})
 	})
 }
 

@@ -2,18 +2,11 @@ package request
 
 import (
 	"fmt"
-	"io"
 	"net/url"
+	"postgirl/app/model"
 )
 
-type RequestConfig struct {
-	Method, Url string
-	Body        io.Reader
-	Headers     map[string]string
-	Params      map[string][]string
-}
-
-func NewRequest(r *RequestConfig) error {
+func NewRequest(r *model.Request) error {
 
 	_, err := parseUrl(r.Url)
 	if err != nil {

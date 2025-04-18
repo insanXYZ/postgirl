@@ -14,7 +14,7 @@ type ModalConfig struct {
 	Title         string
 }
 
-func ShowModal(cfg *ModalConfig) {
+func ShowModal(cfg *ModalConfig) *winman.WindowBase {
 	wm := lib.Winman.NewWindow().Show()
 	wm.SetTitle(cfg.Title)
 	wm.SetRoot(cfg.Content)
@@ -33,5 +33,14 @@ func ShowModal(cfg *ModalConfig) {
 
 	lib.Tview.UpdateDraw(func() {
 		lib.Tview.SetFocus(cfg.Content)
+	})
+
+	return wm
+}
+
+func RemoveModal(modal *winman.WindowBase) {
+	lib.Tview.UpdateDraw(func() {
+		lib.Winman.RemoveWindow(modal)
+		lib.Tview.SetFocus(nil)
 	})
 }
