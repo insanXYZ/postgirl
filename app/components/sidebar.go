@@ -76,7 +76,7 @@ func (s *Sidebar) NewList() {
 
 func (s *Sidebar) AddList(label string) {
 	lib.Tview.UpdateDraw(func() {
-		s.list.AddItem(label, "", 'ཀ', func() {
+		s.list.AddItem(label, "", '⦔', func() {
 			s.requestResponsePanelChan <- label
 		})
 	})

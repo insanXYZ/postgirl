@@ -1,6 +1,7 @@
 package common
 
 import (
+	"postgirl/app/color"
 	"postgirl/app/lib"
 
 	"github.com/epiclabs-io/winman"
@@ -20,6 +21,9 @@ func ShowModal(cfg *ModalConfig) *winman.WindowBase {
 	wm.SetRoot(cfg.Content)
 	wm.SetModal(true)
 	wm.SetBorder(true)
+	wm.SetBackgroundColor(color.BACKGROUND)
+	wm.SetTitleColor(color.BORDER)
+	wm.SetBorderColor(color.BORDER)
 	wm.SetRect(1, 1, cfg.Width, cfg.Height)
 	wm.AddButton(&winman.Button{
 		Symbol: 'X',
