@@ -1,8 +1,6 @@
 package components
 
 import (
-	"fmt"
-	"postgirl/app/lib"
 	"postgirl/app/model"
 
 	"github.com/rivo/tview"
@@ -16,7 +14,7 @@ type RequestResponsePanel struct {
 	submit   chan bool
 
 	//attribute
-	attribute *tview.Flex
+	attribute *Attribute
 
 	//response
 	response *tview.Flex
@@ -40,7 +38,7 @@ func (c *Components) NewRequestResponsePanel(req *model.Request) {
 	ly := tview.NewFlex()
 	ly.SetDirection(tview.FlexRow)
 	ly.AddItem(requestResponsePanel.inputUrl, 3, 1, false)
-	ly.AddItem(requestResponsePanel.attribute, 13, 1, false)
+	ly.AddItem(requestResponsePanel.attribute.Root, 16, 1, false)
 	ly.AddItem(requestResponsePanel.response, 0, 1, false)
 
 	requestResponsePanel.root = ly
@@ -52,15 +50,13 @@ func (r *RequestResponsePanel) listenChan() {
 	for {
 		select {
 		case <-r.submit:
-			lib.Tview.Stop()
-			fmt.Println("submit button")
-			// reqConfig := model.Request{
-			// 	Method: r.currentModel.Method,
-			// 	Url:    r.currentModel.Url,
-			// }
+			// process params json and headers json to map
 
-			// _ = request.NewRequest(&reqConfig)
-
+			req := model.Request{
+				Url:       r.currentModel.Url,
+				Method:    r.currentModel.Method,
+				Attribute: model.Attribute{},
+			}
 		}
 	}
 }

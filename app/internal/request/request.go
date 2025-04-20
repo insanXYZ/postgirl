@@ -2,18 +2,25 @@ package request
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
+	"postgirl/app/lib"
 	"postgirl/app/model"
 )
 
-func NewRequest(r *model.Request) error {
+func NewRequest(r *model.Request) (*http.Response, *Url, error) {
 
-	_, err := parseUrl(r.Url)
+	parsed, err := parseUrl(r.Url)
 	if err != nil {
-		return err
+		return nil, nil, err
+
 	}
 
-	return nil
+	lib.Tview.Stop()
+
+	fmt.Println(*parsed)
+
+	return nil, parsed, nil
 
 }
 

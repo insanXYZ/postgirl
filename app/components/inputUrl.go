@@ -8,11 +8,13 @@ import (
 )
 
 func (r *RequestResponsePanel) NewInputUrl() {
-	methodDropdown := tview.NewDropDown()
-	methodDropdown.SetOptions(model.Methods, func(text string, index int) {
-		r.currentModel.Method = index
+	methodDropdown := common.CreateDropdown(&common.DropdownConfig{
+		Options: model.Methods,
+		SelectedFunc: func(_ string, index int) {
+			r.currentModel.Method = index
+		},
+		CurrentOptions: r.currentModel.Method,
 	})
-	methodDropdown.SetCurrentOption(r.currentModel.Method)
 
 	inputUrl := common.CreateInputField(&common.InputFieldConfig{
 		Placeholder: "Enter URL",

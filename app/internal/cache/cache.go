@@ -34,7 +34,7 @@ func newCacheRequest() *cacheRequests {
 func (c *cacheRequests) Create(label string) {
 	if _, ok := c.caches[label]; !ok {
 		r := model.Request{}
-		r.Method = 0
+		r.Method = model.GET
 		r.Attribute.Params = DefaultParams
 		r.Attribute.Headers = DefaultHeaders
 

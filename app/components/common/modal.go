@@ -11,6 +11,7 @@ import (
 type ModalConfig struct {
 	Content       tview.Primitive
 	CloseFocus    tview.Primitive
+	Center        bool
 	Width, Height int
 	Title         string
 }
@@ -33,7 +34,9 @@ func ShowModal(cfg *ModalConfig) *winman.WindowBase {
 		},
 	})
 	lib.Winman.AddWindow(wm)
-	lib.Winman.Center(wm)
+	if cfg.Center {
+		lib.Winman.Center(wm)
+	}
 
 	lib.Tview.UpdateDraw(func() {
 		lib.Tview.SetFocus(cfg.Content)
