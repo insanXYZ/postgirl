@@ -1,6 +1,7 @@
 package components
 
 import (
+	"postgirl/app/color"
 	"postgirl/app/components/common"
 	"postgirl/app/internal/cache"
 	"postgirl/app/lib"
@@ -45,10 +46,14 @@ func (s *Sidebar) NewList() {
 		})
 
 		modal = common.ShowModal(&common.ModalConfig{
-			Content: form,
-			Title:   "add request",
-			Width:   40,
-			Height:  7,
+			Content:     form,
+			Title:       " ➕ Add request ",
+			Width:       40,
+			Height:      7,
+			BorderColor: color.BORDER,
+			CloseButton: true,
+			TitleAlign:  tview.AlignCenter,
+			Center:      true,
 		})
 
 	}

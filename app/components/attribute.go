@@ -15,6 +15,19 @@ type Attribute struct {
 	Root            *tview.Flex
 }
 
+// get value on headers and params text area
+func (a *Attribute) GetText() (string, string) {
+	return a.HeadersTextArea.GetText(), a.ParamsTextArea.GetText()
+}
+
+func (a *Attribute) SetTextHeaders(v string) {
+	a.HeadersTextArea.SetText(v, true)
+}
+
+func (a *Attribute) SetTextParams(v string) {
+	a.ParamsTextArea.SetText(v, true)
+}
+
 func (r *RequestResponsePanel) NewAttribute() {
 	var flexAttribute *tview.Flex
 	attr := &Attribute{}
@@ -36,6 +49,11 @@ func (r *RequestResponsePanel) NewAttribute() {
 	}
 
 	bodyButton := tview.NewButton("Body")
+
+	dropdownBody := common.CreateDropdown(&common.DropdownConfig{
+		Options:        model.BodyOptions,
+		CurrentOptions: 0,
+	})
 
 	flexButton := tview.NewFlex()
 	flexButton.AddItem(paramsButton, 10, 1, false)
@@ -62,13 +80,9 @@ func (r *RequestResponsePanel) NewAttribute() {
 
 	bodyButton.SetSelectedFunc(func() {
 		lib.Tview.UpdateDraw(func() {
-
-			dropdownBody := common.CreateDropdown(&common.DropdownConfig{
-				Options:        model.BodyOptions,
-				CurrentOptions: 0,
-			})
-
-			flexButton.AddItem(dropdownBody, 15, 1, false)
+			if flexButton.GetItemCount() == 6 {
+				flexButton.AddItem(dropdownBody, 15, 1, false)
+			}
 		})
 	})
 

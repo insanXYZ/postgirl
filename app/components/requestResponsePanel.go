@@ -9,8 +9,8 @@ import (
 type RequestResponsePanel struct {
 	currentModel *model.Request
 
-	// inputurl
-	inputUrl *tview.Flex
+	// inputBar
+	inputBar *InputBar
 	submit   chan bool
 
 	//attribute
@@ -37,28 +37,13 @@ func (c *Components) NewRequestResponsePanel(req *model.Request) {
 
 	ly := tview.NewFlex()
 	ly.SetDirection(tview.FlexRow)
-	ly.AddItem(requestResponsePanel.inputUrl, 3, 1, false)
+	ly.AddItem(requestResponsePanel.inputBar.Root, 3, 1, false)
 	ly.AddItem(requestResponsePanel.attribute.Root, 16, 1, false)
 	ly.AddItem(requestResponsePanel.response, 0, 1, false)
 
 	requestResponsePanel.root = ly
 
 	c.RequestResponsePanel = &requestResponsePanel
-}
-
-func (r *RequestResponsePanel) listenChan() {
-	for {
-		select {
-		case <-r.submit:
-			// process params json and headers json to map
-
-			req := model.Request{
-				Url:       r.currentModel.Url,
-				Method:    r.currentModel.Method,
-				Attribute: model.Attribute{},
-			}
-		}
-	}
 }
 
 func (r *RequestResponsePanel) Root() tview.Primitive {

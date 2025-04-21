@@ -12,3 +12,7 @@ func Marshal(v any) (string, error) {
 	res = string(b)
 	return res, nil
 }
+
+func Unmarshal(data []byte, dst any) error {
+	return json.Unmarshal(data, dst)
+}

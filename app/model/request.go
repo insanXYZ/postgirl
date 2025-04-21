@@ -1,8 +1,12 @@
 package model
 
 import (
+	"io"
 	"net/http"
 )
+
+type ParamsMap = map[string][]string
+type HeadersMap = map[string]string
 
 const (
 	GET = iota
@@ -24,11 +28,11 @@ var (
 type Request struct {
 	Method    int
 	Url       string
-	Attribute Attribute
+	Attribute *Attribute
 }
 
 type Attribute struct {
-	Params  map[string][]string
-	Headers map[string]string
-	Body    any
+	Params  ParamsMap
+	Headers HeadersMap
+	Body    io.Reader
 }
