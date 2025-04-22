@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"io"
 	"postgirl/app/components/common"
 	"postgirl/app/lib"
 	"postgirl/app/model"
@@ -67,11 +68,13 @@ func (r *RequestResponsePanel) listenChan() {
 			var headersMap model.HeadersMap
 			var sliceParams []string
 			var valInputUrl string
+			var bodyReader io.Reader
+			var err error
+
+			headers, params, body := r.attribute.GetText()
 
 			// process params json and headers json to map
-			headers, params := r.attribute.GetText()
-
-			err := util.Unmarshal([]byte(params), &paramsMap)
+			err = util.JsonUnmarshal([]byte(params), &paramsMap)
 			if err != nil {
 				common.ShowNotification(&common.NotificationConfig{
 					Message: model.ErrInvalidFormatParams,
@@ -79,7 +82,7 @@ func (r *RequestResponsePanel) listenChan() {
 				return
 			}
 
-			err = util.Unmarshal([]byte(headers), &headersMap)
+			err = util.JsonUnmarshal([]byte(headers), &headersMap)
 			if err != nil {
 				common.ShowNotification(&common.NotificationConfig{
 					Message: model.ErrInvalidFormatHeaders,
@@ -89,8 +92,43 @@ func (r *RequestResponsePanel) listenChan() {
 
 			url, err := util.ParseUrl(r.inputBar.Url)
 			if err != nil {
-				lib.Tview.Stop()
-				fmt.Println("Error parse url", err.Error())
+				common.ShowNotification(&common.NotificationConfig{
+					Message: model.ErrInvalidFormatUrl,
+				})
+				return
+			}
+
+			// process body
+
+			if r.attribute.BodyTypeSelected != model.NONE {
+
+				var xmlbody any
+				var mapBody model.BodyMap
+
+				if r.attribute.BodyTypeSelected == model.XML {
+					err = util.XmlUnmarshal([]byte(body), &xmlbody)
+				} else {
+					err = util.JsonUnmarshal([]byte(body), &mapBody)
+				}
+
+				if err != nil {
+					panic(err.Error()) //should be use notification
+				}
+
+				switch r.attribute.BodyTypeSelected {
+				case model.BodyOptions[1]: //form data
+					bodyReader, r.attribute.BodyTypeSelected, err = util.CreateReaderFormDataType(mapBody)
+				case model.BodyOptions[2]: // x-www-form-urlencoded
+					bodyReader = util.CreateReaderXWWWFormUrlencodedType(mapBody)
+				case model.BodyOptions[3]: // json
+					bodyReader, err = util.CreateReaderJsonType(mapBody)
+				case model.BodyOptions[4]: //xml
+					bodyReader, err = util.CreateReaderXmlType(xmlbody)
+				}
+			}
+
+			if err != nil {
+				panic(err.Error()) //should be use notification
 			}
 
 			//merge params from url and text area
@@ -114,8 +152,8 @@ func (r *RequestResponsePanel) listenChan() {
 
 			lib.Tview.UpdateDraw(func() {
 				r.inputBar.InputUrl.SetText(valInputUrl)
-				p, _ := util.Marshal(paramsMap)
-				h, _ := util.Marshal(headersMap)
+				p, _ := util.JsonMarshalString(paramsMap)
+				h, _ := util.JsonMarshalString(headersMap)
 				r.attribute.SetTextHeaders(h)
 				r.attribute.SetTextParams(p)
 			})
@@ -124,9 +162,10 @@ func (r *RequestResponsePanel) listenChan() {
 				Method: r.inputBar.Method,
 				Url:    valInputUrl,
 				Attribute: &model.Attribute{
-					Params:  paramsMap,
-					Headers: headersMap,
-					Body:    nil,
+					Params:   paramsMap,
+					Headers:  headersMap,
+					BodyType: r.attribute.BodyTypeSelected,
+					Body:     bodyReader,
 				},
 			}
 

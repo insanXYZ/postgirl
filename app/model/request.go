@@ -7,6 +7,7 @@ import (
 
 type ParamsMap = map[string][]string
 type HeadersMap = map[string]string
+type BodyMap = map[string]any
 
 const (
 	GET = iota
@@ -18,11 +19,21 @@ const (
 	OPTIONS
 )
 
+const (
+	NONE                  = "none"
+	FORM_DATA             = "form-data"
+	X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded"
+	JSON                  = "application/json"
+	XML                   = "application/xml"
+)
+
 var (
 	Methods = []string{
 		http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodHead, http.MethodOptions,
 	}
-	BodyOptions = []string{"none", "form-data", "x-www-form-urlencoded", "json", "xml"}
+	BodyOptions = []string{
+		NONE, FORM_DATA, X_WWW_FORM_URLENCODED, JSON, XML,
+	}
 )
 
 type Request struct {
@@ -32,7 +43,8 @@ type Request struct {
 }
 
 type Attribute struct {
-	Params  ParamsMap
-	Headers HeadersMap
-	Body    io.Reader
+	Params   ParamsMap
+	Headers  HeadersMap
+	BodyType string
+	Body     io.Reader
 }

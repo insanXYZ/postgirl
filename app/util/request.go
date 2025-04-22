@@ -1,10 +1,15 @@
 package util
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"postgirl/app/model"
+	"strings"
 )
 
 func NewRequest(r *model.Request) (*http.Response, error) {
@@ -16,6 +21,11 @@ func NewRequest(r *model.Request) (*http.Response, error) {
 	for i, v := range r.Attribute.Headers {
 		req.Header.Add(i, v)
 	}
+
+	if r.Attribute.BodyType != model.NONE {
+		req.Header.Set("Content-Type", r.Attribute.BodyType)
+	}
+
 	client := http.Client{}
 	return client.Do(req)
 }
@@ -42,4 +52,48 @@ func ParseUrl(u string) (*Url, error) {
 	res.Params = qparams
 
 	return &res, nil
+}
+
+func CreateReaderFormDataType(body model.BodyMap) (io.Reader, string, error) {
+	buf := &bytes.Buffer{}
+	multipart := multipart.NewWriter(buf)
+
+	for i, v := range body {
+		writer, err := multipart.CreateFormField(i)
+		if err != nil {
+			return nil, "", err
+		}
+
+		_, err = writer.Write([]byte(v.(string)))
+		if err != nil {
+			return nil, "", err
+		}
+	}
+
+	err := multipart.Close()
+	if err != nil {
+		return nil, "", err
+	}
+
+	return buf, multipart.FormDataContentType(), nil
+}
+
+func CreateReaderXWWWFormUrlencodedType(body model.BodyMap) io.Reader {
+	data := url.Values{}
+
+	for i, v := range body {
+		data.Set(i, v.(string))
+	}
+
+	return strings.NewReader(data.Encode())
+}
+
+func CreateReaderJsonType(body model.BodyMap) (io.Reader, error) {
+	b, err := JsonMarshal(body)
+	return bytes.NewReader(b), err
+}
+
+func CreateReaderXmlType(body any) (io.Reader, error) {
+	b, err := xml.Marshal(body)
+	return bytes.NewReader(b), err
 }

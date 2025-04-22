@@ -1,5 +1,7 @@
 github.com/aerogu/tvchooser v1.1.0 h1:FHdgwepQp/UksLMMPD27aj4UuuoLu5NaYOFPA96PM00=
 github.com/aerogu/tvchooser v1.1.0/go.mod h1:P9j/K/a2r5819RKHBTLgmIYKVCohm6YaaSBxWu7KK0Y=
+github.com/clbanning/mxj/v2 v2.7.0 h1:WA/La7UGCanFe5NpHF0Q3DNtnCsVoxbPKuyBNHWRyME=
+github.com/clbanning/mxj/v2 v2.7.0/go.mod h1:hNiWqW14h+kc+MdF9C6/YoRfjEJoR3ou6tn/Qo+ve2s=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/epiclabs-io/winman v0.0.0-20220901164457-3d8c4b3ae090 h1:sEzis2zS+9e9kGElINXWL5oSea1xdeYp4V7wMC7eBcs=

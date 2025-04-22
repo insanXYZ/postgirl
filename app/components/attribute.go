@@ -10,14 +10,16 @@ import (
 )
 
 type Attribute struct {
-	ParamsTextArea  *tview.TextArea
-	HeadersTextArea *tview.TextArea
-	Root            *tview.Flex
+	ParamsTextArea   *tview.TextArea
+	HeadersTextArea  *tview.TextArea
+	BodyTextArea     *tview.TextArea
+	BodyTypeSelected string
+	Root             *tview.Flex
 }
 
-// get value on headers and params text area
-func (a *Attribute) GetText() (string, string) {
-	return a.HeadersTextArea.GetText(), a.ParamsTextArea.GetText()
+// get value on headers , params and body text area
+func (a *Attribute) GetText() (string, string, string) {
+	return a.HeadersTextArea.GetText(), a.ParamsTextArea.GetText(), a.BodyTextArea.GetText()
 }
 
 func (a *Attribute) SetTextHeaders(v string) {
@@ -30,30 +32,43 @@ func (a *Attribute) SetTextParams(v string) {
 
 func (r *RequestResponsePanel) NewAttribute() {
 	var flexAttribute *tview.Flex
-	attr := &Attribute{}
+	attr := &Attribute{
+		BodyTypeSelected: model.BodyOptions[0],
+	}
 
 	paramsButton := tview.NewButton("Params")
-	paramsTextArea := tview.NewTextArea()
+	paramsTextArea := common.CreateTextArea(&common.TextAreaConfig{
+		Border: true,
+	})
 	attr.ParamsTextArea = paramsTextArea
-	paramsTextArea.SetBorder(true)
-	if stringParams, err := util.Marshal(r.currentModel.Attribute.Params); err == nil {
+	if stringParams, err := util.JsonMarshalString(r.currentModel.Attribute.Params); err == nil {
 		paramsTextArea.SetText(stringParams, false)
 	}
 
 	headersButton := tview.NewButton("Headers")
-	headersTextArea := tview.NewTextArea()
+	headersTextArea := common.CreateTextArea(&common.TextAreaConfig{
+		Border: true,
+	})
 	attr.HeadersTextArea = headersTextArea
-	headersTextArea.SetBorder(true)
-	if stringHeaders, err := util.Marshal(r.currentModel.Attribute.Headers); err == nil {
+	if stringHeaders, err := util.JsonMarshalString(r.currentModel.Attribute.Headers); err == nil {
 		headersTextArea.SetText(stringHeaders, false)
 	}
 
 	bodyButton := tview.NewButton("Body")
 
-	dropdownBody := common.CreateDropdown(&common.DropdownConfig{
+	dropdownBodyType := common.CreateDropdown(&common.DropdownConfig{
 		Options:        model.BodyOptions,
 		CurrentOptions: 0,
+		SelectedFunc: func(text string, _ int) {
+			attr.BodyTypeSelected = text
+		},
 	})
+
+	bodyTextArea := common.CreateTextArea(&common.TextAreaConfig{
+		Border: true,
+	})
+
+	attr.BodyTextArea = bodyTextArea
 
 	flexButton := tview.NewFlex()
 	flexButton.AddItem(paramsButton, 10, 1, false)
@@ -81,7 +96,12 @@ func (r *RequestResponsePanel) NewAttribute() {
 	bodyButton.SetSelectedFunc(func() {
 		lib.Tview.UpdateDraw(func() {
 			if flexButton.GetItemCount() == 6 {
-				flexButton.AddItem(dropdownBody, 15, 1, false)
+				flexButton.AddItem(dropdownBodyType, 15, 1, false)
+			}
+
+			if flexAttribute.GetItemCount() == 2 {
+				flexAttribute.RemoveItem(flexAttribute.GetItem(flexAttribute.GetItemCount() - 1))
+				flexAttribute.AddItem(bodyTextArea, 13, 1, false)
 			}
 		})
 	})

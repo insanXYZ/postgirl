@@ -2,17 +2,15 @@ package util
 
 import "encoding/json"
 
-func Marshal(v any) (string, error) {
-	var res string
-
-	b, err := json.MarshalIndent(v, "", " ")
-	if err != nil {
-		return res, err
-	}
-	res = string(b)
-	return res, nil
+func JsonMarshal(v any) ([]byte, error) {
+	return json.Marshal(v)
 }
 
-func Unmarshal(data []byte, dst any) error {
+func JsonMarshalString(v any) (string, error) {
+	b, err := json.MarshalIndent(v, "", " ")
+	return string(b), err
+}
+
+func JsonUnmarshal(data []byte, dst any) error {
 	return json.Unmarshal(data, dst)
 }
