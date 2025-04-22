@@ -102,17 +102,17 @@ func (r *RequestResponsePanel) listenChan() {
 
 			if r.attribute.BodyTypeSelected != model.NONE {
 
-				var xmlbody any
 				var mapBody model.BodyMap
 
-				if r.attribute.BodyTypeSelected == model.XML {
-					err = util.XmlUnmarshal([]byte(body), &xmlbody)
-				} else {
+				if r.attribute.BodyTypeSelected != model.XML {
 					err = util.JsonUnmarshal([]byte(body), &mapBody)
 				}
 
 				if err != nil {
-					panic(err.Error()) //should be use notification
+					common.ShowNotification(&common.NotificationConfig{
+						Message: "Error unmarshal body to mapbody," + err.Error(),
+					})
+					return
 				}
 
 				switch r.attribute.BodyTypeSelected {
@@ -123,12 +123,15 @@ func (r *RequestResponsePanel) listenChan() {
 				case model.BodyOptions[3]: // json
 					bodyReader, err = util.CreateReaderJsonType(mapBody)
 				case model.BodyOptions[4]: //xml
-					bodyReader, err = util.CreateReaderXmlType(xmlbody)
+					bodyReader, err = util.CreateReaderXmlType(body)
 				}
 			}
 
 			if err != nil {
-				panic(err.Error()) //should be use notification
+				common.ShowNotification(&common.NotificationConfig{
+					Message: err.Error(),
+				})
+				return
 			}
 
 			//merge params from url and text area

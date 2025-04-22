@@ -2,7 +2,6 @@ package util
 
 import (
 	"bytes"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -10,6 +9,8 @@ import (
 	"net/url"
 	"postgirl/app/model"
 	"strings"
+
+	"github.com/clbanning/mxj/v2"
 )
 
 func NewRequest(r *model.Request) (*http.Response, error) {
@@ -93,7 +94,12 @@ func CreateReaderJsonType(body model.BodyMap) (io.Reader, error) {
 	return bytes.NewReader(b), err
 }
 
-func CreateReaderXmlType(body any) (io.Reader, error) {
-	b, err := xml.Marshal(body)
+func CreateReaderXmlType(body string) (io.Reader, error) {
+	m, err := mxj.NewMapXml([]byte(body))
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := m.Xml()
 	return bytes.NewReader(b), err
 }
