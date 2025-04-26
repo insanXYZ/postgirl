@@ -1,12 +1,20 @@
 package main
 
-import "postgirl/app"
+import (
+	"fmt"
+	"postgirl/components"
+	"postgirl/lib"
+	"postgirl/model"
+)
 
 func main() {
-	app := app.NewApp()
-	err := app.Run()
+
+	components := components.NewComponents()
+
+	lib.Winman.NewWindow().SetRoot(components.Root()).Maximize().SetBorder(false).Show()
+	err := lib.Tview.SetRoot(lib.Winman, true).EnableMouse(true).Run()
 
 	if err != nil {
-		panic(err.Error())
+		fmt.Printf("%v\n%v", model.ErrStartApp, "error detail :"+err.Error())
 	}
 }

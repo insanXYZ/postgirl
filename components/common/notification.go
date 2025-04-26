@@ -2,8 +2,8 @@ package common
 
 import (
 	"math"
-	"postgirl/app/color"
-	"postgirl/app/lib"
+	"postgirl/color"
+	"postgirl/lib"
 	"time"
 
 	"github.com/rivo/tview"
@@ -28,7 +28,7 @@ func ShowNotification(cfg *NotificationConfig) {
 		BorderColor: color.ERROR,
 	})
 
-	time.AfterFunc(1500*time.Millisecond, func() {
+	time.AfterFunc(2000*time.Millisecond, func() {
 		lib.Tview.UpdateDraw(func() {
 			lib.Winman.RemoveWindow(modal)
 			lib.Tview.SetFocus(nil)

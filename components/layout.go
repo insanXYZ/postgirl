@@ -1,9 +1,10 @@
 package components
 
 import (
-	"postgirl/app/internal/cache"
-	"postgirl/app/lib"
-	"postgirl/app/model"
+	"postgirl/color"
+	"postgirl/components/common"
+	"postgirl/lib"
+	"postgirl/model"
 
 	"github.com/rivo/tview"
 )
@@ -14,12 +15,13 @@ func (c *Components) NewLayout() {
 	if c.RequestResponsePanel != nil {
 		requestResponsePanel = c.RequestResponsePanel.Root()
 	} else {
-		requestResponsePanel = tview.NewBox()
+		requestResponsePanel = common.CreateEmptyBox()
 	}
 
 	layoutFlex := tview.NewFlex()
 	layoutFlex.AddItem(c.Sidebar.Root(), 30, 1, false)
 	layoutFlex.AddItem(requestResponsePanel, 0, 1, false)
+	layoutFlex.SetBackgroundColor(color.BACKGROUND)
 
 	c.Layout = layoutFlex
 }
@@ -34,14 +36,4 @@ func (c *Components) ChangePanel(req *model.Request) {
 	lib.Tview.UpdateDraw(func() {
 		c.Layout.AddItem(c.RequestResponsePanel.Root(), 0, 1, false)
 	})
-}
-
-func (c *Components) listenChangesRequestResponsePanel() {
-	for {
-		select {
-		case label := <-c.RequestResponsePanelChan:
-			cache := cache.CacheRequests.Get(label)
-			c.ChangePanel(cache)
-		}
-	}
 }

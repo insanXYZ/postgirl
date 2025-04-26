@@ -1,10 +1,10 @@
 package components
 
 import (
-	"postgirl/app/components/common"
-	"postgirl/app/lib"
-	"postgirl/app/model"
-	"postgirl/app/util"
+	"postgirl/components/common"
+	"postgirl/lib"
+	"postgirl/model"
+	"postgirl/util"
 
 	"github.com/rivo/tview"
 )
@@ -23,11 +23,11 @@ func (a *Attribute) GetText() (string, string, string) {
 }
 
 func (a *Attribute) SetTextHeaders(v string) {
-	a.HeadersTextArea.SetText(v, true)
+	a.HeadersTextArea.SetText(v, false)
 }
 
 func (a *Attribute) SetTextParams(v string) {
-	a.ParamsTextArea.SetText(v, true)
+	a.ParamsTextArea.SetText(v, false)
 }
 
 func (r *RequestResponsePanel) NewAttribute() {
@@ -36,7 +36,9 @@ func (r *RequestResponsePanel) NewAttribute() {
 		BodyTypeSelected: model.BodyOptions[0],
 	}
 
-	paramsButton := tview.NewButton("Params")
+	paramsButton := common.CreateButton(&common.ButtonConfig{
+		Label: "Params",
+	})
 	paramsTextArea := common.CreateTextArea(&common.TextAreaConfig{
 		Border: true,
 	})
@@ -45,7 +47,9 @@ func (r *RequestResponsePanel) NewAttribute() {
 		paramsTextArea.SetText(stringParams, false)
 	}
 
-	headersButton := tview.NewButton("Headers")
+	headersButton := common.CreateButton(&common.ButtonConfig{
+		Label: "Headers",
+	})
 	headersTextArea := common.CreateTextArea(&common.TextAreaConfig{
 		Border: true,
 	})
@@ -54,7 +58,9 @@ func (r *RequestResponsePanel) NewAttribute() {
 		headersTextArea.SetText(stringHeaders, false)
 	}
 
-	bodyButton := tview.NewButton("Body")
+	bodyButton := common.CreateButton(&common.ButtonConfig{
+		Label: "Body",
+	})
 
 	dropdownBodyType := common.CreateDropdown(&common.DropdownConfig{
 		Options:        model.BodyOptions,
@@ -70,20 +76,24 @@ func (r *RequestResponsePanel) NewAttribute() {
 
 	attr.BodyTextArea = bodyTextArea
 
-	flexButton := tview.NewFlex()
+	flexButton := common.CreateFlex(&common.FlexConfig{
+		Border:    true,
+		Direction: tview.FlexColumn,
+	})
 	flexButton.AddItem(paramsButton, 10, 1, false)
 	flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	flexButton.AddItem(headersButton, 10, 1, false)
 	flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	flexButton.AddItem(bodyButton, 10, 1, false)
-	flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
-	flexButton.SetBorder(true)
+	flexButton.AddItem(common.CreateEmptyBox(), 0, 1, false)
 
-	flexAttribute = tview.NewFlex()
+	flexAttribute = common.CreateFlex(&common.FlexConfig{
+		Border: false,
+	})
 	attr.Root = flexAttribute
 	flexAttribute.SetDirection(tview.FlexRow)
 	flexAttribute.AddItem(flexButton, 3, 1, false)
-	flexAttribute.AddItem(common.CreateEmptyBox(), 13, 1, false)
+	flexAttribute.AddItem(paramsTextArea, 13, 1, false)
 
 	removedBodyDropdown := func() {
 		if flexButton.GetItemCount() == 7 {
@@ -96,7 +106,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 	bodyButton.SetSelectedFunc(func() {
 		lib.Tview.UpdateDraw(func() {
 			if flexButton.GetItemCount() == 6 {
-				flexButton.AddItem(dropdownBodyType, 15, 1, false)
+				flexButton.AddItem(dropdownBodyType, 20, 1, false)
 			}
 
 			if flexAttribute.GetItemCount() == 2 {

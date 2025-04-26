@@ -2,12 +2,13 @@ package util
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"postgirl/app/model"
+	"postgirl/model"
 	"strings"
 
 	"github.com/clbanning/mxj/v2"
@@ -38,6 +39,15 @@ type Url struct {
 
 func ParseUrl(u string) (*Url, error) {
 	res := Url{}
+
+	splitUrl := strings.Split(u, ":")
+	if len(splitUrl) == 0 {
+		return nil, errors.New(model.ErrUrlRequired)
+	}
+
+	if splitUrl[0] != "http" && splitUrl[0] != "https" {
+		return nil, errors.New(model.ErrMissingProtocol)
+	}
 
 	parse, err := url.Parse(u)
 	if err != nil {

@@ -1,8 +1,8 @@
 package common
 
 import (
-	"postgirl/app/color"
-	"postgirl/app/lib"
+	"postgirl/color"
+	"postgirl/lib"
 
 	"github.com/epiclabs-io/winman"
 	"github.com/gdamore/tcell/v2"
@@ -32,6 +32,7 @@ func ShowModal(cfg *ModalConfig) *winman.WindowBase {
 	wm.SetTitleColor(color.BORDER)
 	wm.SetBorderColor(cfg.BorderColor)
 	wm.SetRect(cfg.X, cfg.Y, cfg.Width, cfg.Height)
+	wm.SetTitleColor(color.LABEL)
 
 	lib.Winman.AddWindow(wm)
 

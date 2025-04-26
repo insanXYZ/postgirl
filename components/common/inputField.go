@@ -1,7 +1,7 @@
 package common
 
 import (
-	"postgirl/app/color"
+	"postgirl/color"
 
 	"github.com/rivo/tview"
 )
@@ -15,9 +15,11 @@ type InputFieldConfig struct {
 func CreateInputField(config *InputFieldConfig) *tview.InputField {
 	inputField := tview.NewInputField()
 	inputField.SetPlaceholder(config.Placeholder)
-	inputField.SetPlaceholderTextColor(color.PLACEHOLDER)
 	inputField.SetChangedFunc(config.ChangedFunc)
 	inputField.SetText(config.DefaultText)
+
+	inputField.SetPlaceholderTextColor(color.PLACEHOLDER)
+	inputField.SetBackgroundColor(color.BACKGROUND_COMPONENT)
 	inputField.SetFieldTextColor(color.LABEL)
 
 	return inputField

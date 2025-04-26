@@ -1,7 +1,7 @@
 package components
 
 import (
-	"postgirl/app/model"
+	"postgirl/model"
 
 	"github.com/rivo/tview"
 )
@@ -11,13 +11,13 @@ type RequestResponsePanel struct {
 
 	// inputBar
 	inputBar *InputBar
-	submit   chan bool
+	send     chan bool
 
 	//attribute
 	attribute *Attribute
 
 	//response
-	response *tview.Flex
+	response *Response
 
 	//root
 	root *tview.Flex
@@ -26,7 +26,7 @@ type RequestResponsePanel struct {
 func (c *Components) NewRequestResponsePanel(req *model.Request) {
 	requestResponsePanel := RequestResponsePanel{
 		currentModel: req,
-		submit:       make(chan bool),
+		send:         make(chan bool),
 	}
 
 	go requestResponsePanel.listenChan()
@@ -39,7 +39,7 @@ func (c *Components) NewRequestResponsePanel(req *model.Request) {
 	ly.SetDirection(tview.FlexRow)
 	ly.AddItem(requestResponsePanel.inputBar.Root, 3, 1, false)
 	ly.AddItem(requestResponsePanel.attribute.Root, 16, 1, false)
-	ly.AddItem(requestResponsePanel.response, 0, 1, false)
+	ly.AddItem(requestResponsePanel.response.Root, 0, 1, false)
 
 	requestResponsePanel.root = ly
 

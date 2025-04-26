@@ -1,7 +1,8 @@
 package cache
 
 import (
-	"postgirl/app/model"
+	"postgirl/model"
+	"slices"
 )
 
 var (
@@ -14,6 +15,7 @@ func init() {
 
 type cacheRequests struct {
 	caches map[string]*model.Request
+	listLabel []string
 }
 
 func newCacheRequest() *cacheRequests {
@@ -37,9 +39,26 @@ func (c *cacheRequests) Create(label string) {
 		}
 
 		c.caches[label] = &r
+		c.listLabel = append(c.listLabel, label)
 	}
 }
 
-func (c *cacheRequests) Get(label string) *model.Request {
+func (c *cacheRequests) GetRequest(label string) *model.Request {
 	return c.caches[label]
+}
+
+func (c *cacheRequests) GetList() []string {
+	return c.listLabel
+}
+
+func (c *cacheRequests) DeleteMap(label string) {
+	delete(c.caches, label)
+}
+
+func (c *cacheRequests) DeleteList(index int){
+	c.listLabel = slices.Delete(c.listLabel , index ,index+1)
+}
+
+func (c *cacheRequests) GetMap() map[string]*model.Request {
+	return c.caches
 }
