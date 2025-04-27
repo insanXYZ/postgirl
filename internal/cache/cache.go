@@ -44,6 +44,7 @@ func (c *cacheRequests) Create(label string) {
 			"Accept-Encoding": "gzip,deflate,br",
 			"Connection":      "keep-alive",
 		}
+		r.Attribute.BodyType = model.NONE
 		c.caches[label] = new(fields)
 		c.caches[label].request = r
 		c.listLabel = append(c.listLabel, label)

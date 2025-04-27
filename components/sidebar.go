@@ -63,6 +63,54 @@ func (s *Sidebar) showModalAddRequest() {
 }
 
 func (s *Sidebar) showModalInfo() {
+
+	text := `	URL
+
+	example = http://example.com
+
+	PARAMS
+	
+	example = {
+				"name": ["john doe"]
+			  }
+
+	HEADERS
+	
+	example = {
+				"Custom-Header": "123"
+			  }
+	
+	BODY
+
+	type = application/xml
+	example = <person>
+				<name>
+					john doe
+				</name>
+			  </person>
+
+	type = application/json, application/x-www-form-urlencoded, form-data
+	example = {
+				"name": "john doe"
+			  }
+	`
+
+	content := common.CreateTextView(&common.TextViewConfig{
+		Border: false,
+		Align:  tview.AlignLeft,
+		Text:   text,
+	})
+
+	common.ShowModal(&common.ModalConfig{
+		Content:     content,
+		Title:       " ❗Info ",
+		Width:       55,
+		Height:      10,
+		BorderColor: color.BORDER,
+		CloseButton: true,
+		TitleAlign:  tview.AlignCenter,
+		Center:      true,
+	})
 }
 
 func (s *Sidebar) showModalRemoveRequest() {
