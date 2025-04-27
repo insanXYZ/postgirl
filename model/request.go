@@ -5,9 +5,11 @@ import (
 	"net/http"
 )
 
-type ParamsMap = map[string][]string
-type HeadersMap = map[string]string
-type BodyMap = map[string]any
+type (
+	ParamsMap  = map[string][]string
+	HeadersMap = map[string]string
+	BodyMap    = map[string]any
+)
 
 const (
 	GET = iota
@@ -37,14 +39,15 @@ var (
 )
 
 type Request struct {
-	Method    int
-	Url       string
-	Attribute *Attribute
+	Method    int        `json:"method"`
+	Url       string     `json:"url"`
+	Attribute *Attribute `json:"attribute"`
 }
 
 type Attribute struct {
-	Params   ParamsMap
-	Headers  HeadersMap
-	BodyType string
-	Body     io.Reader
+	Params     ParamsMap  `json:"params_map"`
+	Headers    HeadersMap `json:"headers_map"`
+	BodyType   string     `json:"body_type"`
+	BodyString string     `json:"body_string"`
+	Body       io.Reader  `json:"-"`
 }

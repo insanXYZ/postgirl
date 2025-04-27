@@ -7,26 +7,26 @@ import (
 )
 
 type RequestResponsePanel struct {
-	currentModel *model.Request
+	currentRequest *model.Request
 
 	// inputBar
 	inputBar *InputBar
 	send     chan bool
 
-	//attribute
+	// attribute
 	attribute *Attribute
 
-	//response
+	// response
 	response *Response
 
-	//root
+	// root
 	root *tview.Flex
 }
 
-func (c *Components) NewRequestResponsePanel(req *model.Request) {
+func NewRequestResponsePanel(req *model.Request) *tview.Flex {
 	requestResponsePanel := RequestResponsePanel{
-		currentModel: req,
-		send:         make(chan bool),
+		currentRequest: req,
+		send:           make(chan bool),
 	}
 
 	go requestResponsePanel.listenChan()
@@ -43,7 +43,7 @@ func (c *Components) NewRequestResponsePanel(req *model.Request) {
 
 	requestResponsePanel.root = ly
 
-	c.RequestResponsePanel = &requestResponsePanel
+	return requestResponsePanel.root
 }
 
 func (r *RequestResponsePanel) Root() tview.Primitive {

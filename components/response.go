@@ -27,10 +27,7 @@ func (r *Response) Reset() {
 }
 
 func (r *Response) ListenChan() {
-	for {
-		select {
-		case load := <-r.Loading:
-
+	for load := range r.Loading {
 			lib.Tview.UpdateDraw(func() {
 				if r.Menu.GetItemCount() == 5 {
 					r.Menu.RemoveItem(r.Menu.GetItem(4))
@@ -60,10 +57,10 @@ func (r *Response) ListenChan() {
 
 						r.Menu.AddItem(tag, 6, 1, false)
 					}
-				}
+			}
 			})
-		}
 	}
+
 }
 
 func (r *Response) SetBodyText(text string) {

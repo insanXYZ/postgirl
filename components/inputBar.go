@@ -26,13 +26,13 @@ func (r *RequestResponsePanel) NewInputUrl() {
 		SelectedFunc: func(_ string, index int) {
 			inputBar.Method = index
 		},
-		CurrentOptions: r.currentModel.Method,
+		CurrentOptions: r.currentRequest.Method,
 	})
 	inputBar.Dropdown = methodDropdown
 
 	inputUrl := common.CreateInputField(&common.InputFieldConfig{
 		Placeholder: "Enter URL",
-		DefaultText: r.currentModel.Url,
+		DefaultText: r.currentRequest.Url,
 		ChangedFunc: func(text string) {
 			inputBar.Url = text
 		},
@@ -61,10 +61,7 @@ func (r *RequestResponsePanel) NewInputUrl() {
 }
 
 func (r *RequestResponsePanel) listenChan() {
-	for {
-		select {
-		case <-r.send:
-			r.HandlerSend()
-		}
+	for range r.send {
+		r.HandlerSend()
 	}
 }

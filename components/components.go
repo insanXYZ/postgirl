@@ -1,41 +1,35 @@
 package components
 
 import (
-	"postgirl/internal/cache"
-
 	"github.com/rivo/tview"
 )
 
+var switchRequestResponsePanelChan chan string
+
+func init() {
+	switchRequestResponsePanelChan = make(chan string)
+}
+
 type Components struct {
-	Sidebar *Sidebar
-
-	//panel
-	RequestResponsePanel           *RequestResponsePanel
-	SwitchRequestResponsePanelChan chan string
-
-	Layout *tview.Flex
+	Sidebar              *Sidebar
+	RequestResponsePanel *RequestResponsePanel
+	Layout               *tview.Flex
 }
 
 func NewComponents() *Components {
-	cmp := &Components{
-		SwitchRequestResponsePanelChan: make(chan string),
-	}
+	cmp := &Components{}
 
 	go cmp.listenChan()
 
-	cmp.NewSidebar()
+	cmp.Sidebar = NewSidebar()
 	cmp.NewLayout()
 
 	return cmp
 }
 
 func (c *Components) listenChan() {
-	for {
-		select {
-		case label := <-c.SwitchRequestResponsePanelChan:
-			cache := cache.CacheRequests.GetRequest(label)
-			c.ChangePanel(cache)
-		}
+	for label := range switchRequestResponsePanelChan {
+		c.ChangePanel(label)
 	}
 }
 

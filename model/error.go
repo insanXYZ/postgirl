@@ -10,4 +10,5 @@ const (
 	ErrMissingProtocol      = "procol required"
 	ErrReadResponseBody     = "error read response body"
 	ErrReadHeader           = "error read response header"
+	ErrSaveCache            = "error save request to cache"
 )

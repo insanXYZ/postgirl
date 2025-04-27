@@ -3,13 +3,15 @@ package components
 import (
 	"fmt"
 	"io"
-	"postgirl/components/common"
-	"postgirl/lib"
-	"postgirl/model"
-	"postgirl/util"
 	"slices"
 	"strconv"
 	"strings"
+
+	"postgirl/components/common"
+	"postgirl/internal/cache"
+	"postgirl/lib"
+	"postgirl/model"
+	"postgirl/util"
 )
 
 func (r *RequestResponsePanel) HandlerSend() {
@@ -95,13 +97,13 @@ func (r *RequestResponsePanel) HandlerSend() {
 		}
 
 		switch r.attribute.BodyTypeSelected {
-		case model.BodyOptions[1]: //form data
+		case model.BodyOptions[1]: // form data
 			bodyReader, r.attribute.BodyTypeSelected, err = util.CreateReaderFormDataType(mapBody)
 		case model.BodyOptions[2]: // x-www-form-urlencoded
 			bodyReader = util.CreateReaderXWWWFormUrlencodedType(mapBody)
 		case model.BodyOptions[3]: // json
 			bodyReader, err = util.CreateReaderJsonType(mapBody)
-		case model.BodyOptions[4]: //xml
+		case model.BodyOptions[4]: // xml
 			bodyReader, err = util.CreateReaderXmlType(body)
 		}
 
@@ -131,6 +133,16 @@ func (r *RequestResponsePanel) HandlerSend() {
 			Body:     bodyReader,
 		},
 	}
+
+	defer func() {
+		*r.currentRequest = *req
+		err := cache.CacheRequests.Save()
+		if err != nil {
+			common.ShowNotification(&common.NotificationConfig{
+				Message: model.ErrSaveCache,
+			})
+		}
+	}()
 
 	res, err := util.NewRequest(req)
 	if err != nil {
@@ -167,5 +179,4 @@ func (r *RequestResponsePanel) HandlerSend() {
 		r.response.SetBodyText(resBody)
 		r.response.SetHeaderText(headerJson)
 	})
-
 }

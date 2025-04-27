@@ -3,8 +3,8 @@ package components
 import (
 	"postgirl/color"
 	"postgirl/components/common"
+	"postgirl/internal/cache"
 	"postgirl/lib"
-	"postgirl/model"
 
 	"github.com/rivo/tview"
 )
@@ -26,14 +26,14 @@ func (c *Components) NewLayout() {
 	c.Layout = layoutFlex
 }
 
-func (c *Components) ChangePanel(req *model.Request) {
+func (c *Components) ChangePanel(label string) {
+	panel := cache.CacheRequests.GetPanel(label)
+
 	if c.Layout.GetItemCount() == 2 {
 		c.Layout.RemoveItem(c.Layout.GetItem(c.Layout.GetItemCount() - 1))
 	}
 
-	c.NewRequestResponsePanel(req)
-
 	lib.Tview.UpdateDraw(func() {
-		c.Layout.AddItem(c.RequestResponsePanel.Root(), 0, 1, false)
+		c.Layout.AddItem(panel, 0, 1, false)
 	})
 }

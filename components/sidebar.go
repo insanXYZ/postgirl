@@ -14,18 +14,13 @@ import (
 type Sidebar struct {
 	list *tview.List
 	root *tview.Flex
-
-	//hook change panel
-	switchRequestResponsePanelChan chan string
 }
 
-func (c *Components) NewSidebar() {
-	sidebar := Sidebar{
-		switchRequestResponsePanelChan: c.SwitchRequestResponsePanelChan,
-	}
+func NewSidebar() *Sidebar {
+	sidebar := Sidebar{}
 	sidebar.NewList()
 
-	c.Sidebar = &sidebar
+	return &sidebar
 }
 
 func (s *Sidebar) showModalAddRequest() {
@@ -41,7 +36,7 @@ func (s *Sidebar) showModalAddRequest() {
 	})
 
 	form.AddButton("create", func() {
-		cache.CacheRequests.Create(name)
+		cache.CacheRequests.Create(name, NewRequestResponsePanel)
 		s.AddList(name)
 		common.RemoveModal(modal)
 	})
@@ -56,7 +51,9 @@ func (s *Sidebar) showModalAddRequest() {
 		TitleAlign:  tview.AlignCenter,
 		Center:      true,
 	})
+}
 
+func (s *Sidebar) showModalInfo() {
 }
 
 func (s *Sidebar) showModalRemoveRequest() {
@@ -87,7 +84,6 @@ func (s *Sidebar) showModalRemoveRequest() {
 	deleteButton := common.CreateButton(&common.ButtonConfig{
 		Label: "delete",
 		SelectedFunc: func() {
-
 			var indexLists []int
 
 			for i, v := range selectedRequests {
@@ -98,7 +94,7 @@ func (s *Sidebar) showModalRemoveRequest() {
 			if len(indexLists) != 0 {
 				util.SortDesc(indexLists)
 
-				for _ ,v  := range indexLists {
+				for _, v := range indexLists {
 					cache.CacheRequests.DeleteList(v)
 					listRequest.RemoveItem(v)
 					s.list.RemoveItem(v)
@@ -106,11 +102,10 @@ func (s *Sidebar) showModalRemoveRequest() {
 			}
 
 			selectedRequests = make(map[string]int)
-
 		},
 	})
 
-	for _ , v := range cacheLists {
+	for _, v := range cacheLists {
 		listRequest.AddItem("( ) "+v, "", 0, nil)
 	}
 
@@ -134,7 +129,6 @@ func (s *Sidebar) showModalRemoveRequest() {
 }
 
 func (s *Sidebar) NewList() {
-
 	list := common.CreateList(&common.ListConfig{
 		Border: true,
 	})
@@ -159,7 +153,8 @@ func (s *Sidebar) NewList() {
 	}), 3, 1, false)
 	actionsFlex.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	actionsFlex.AddItem(common.CreateButton(&common.ButtonConfig{
-		Label: "i",
+		Label:        "i",
+		SelectedFunc: s.showModalInfo,
 	}), 3, 1, false)
 	actionsFlex.AddItem(common.CreateEmptyBox(), 1, 1, false)
 
@@ -176,7 +171,7 @@ func (s *Sidebar) NewList() {
 func (s *Sidebar) AddList(label string) {
 	lib.Tview.UpdateDraw(func() {
 		s.list.AddItem(label, "", 0, func() {
-			s.switchRequestResponsePanelChan <- label
+			switchRequestResponsePanelChan <- label
 		})
 	})
 }

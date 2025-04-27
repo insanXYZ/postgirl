@@ -43,7 +43,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 		Border: true,
 	})
 	attr.ParamsTextArea = paramsTextArea
-	if stringParams, err := util.JsonMarshalString(r.currentModel.Attribute.Params); err == nil {
+	if stringParams, err := util.JsonMarshalString(r.currentRequest.Attribute.Params); err == nil {
 		paramsTextArea.SetText(stringParams, false)
 	}
 
@@ -54,7 +54,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 		Border: true,
 	})
 	attr.HeadersTextArea = headersTextArea
-	if stringHeaders, err := util.JsonMarshalString(r.currentModel.Attribute.Headers); err == nil {
+	if stringHeaders, err := util.JsonMarshalString(r.currentRequest.Attribute.Headers); err == nil {
 		headersTextArea.SetText(stringHeaders, false)
 	}
 
@@ -133,5 +133,4 @@ func (r *RequestResponsePanel) NewAttribute() {
 	})
 
 	r.attribute = attr
-
 }
