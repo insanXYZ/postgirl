@@ -16,8 +16,8 @@ func init() {
 }
 
 type fields struct {
-	panel   *tview.Flex    `json:"-"`
-	request *model.Request `json:"request,omitempty"`
+	panel   *tview.Flex
+	request *model.Request
 }
 
 type cacheRequests struct {
@@ -31,7 +31,7 @@ func newCacheRequest() *cacheRequests {
 	}
 }
 
-func (c *cacheRequests) Create(label string, createPanelFunc func(*model.Request) *tview.Flex) {
+func (c *cacheRequests) Create(label string) {
 	if _, ok := c.caches[label]; !ok {
 		r := &model.Request{
 			Attribute: new(model.Attribute),
@@ -46,7 +46,6 @@ func (c *cacheRequests) Create(label string, createPanelFunc func(*model.Request
 		}
 		c.caches[label] = new(fields)
 		c.caches[label].request = r
-		c.caches[label].panel = createPanelFunc(r)
 		c.listLabel = append(c.listLabel, label)
 	}
 }
@@ -61,6 +60,14 @@ func (c *cacheRequests) GetPanel(label string) *tview.Flex {
 
 func (c *cacheRequests) GetList() []string {
 	return c.listLabel
+}
+
+func (c *cacheRequests) SetPanel(label string, panel *tview.Flex) {
+	c.caches[label].panel = panel
+}
+
+func (c *cacheRequests) SetRequest(label string, request *model.Request) {
+	c.caches[label].request = request
 }
 
 func (c *cacheRequests) DeleteMap(label string) {
@@ -89,5 +96,5 @@ func (c *cacheRequests) Save() error {
 
 	s := util.Encode(b)
 
-	return util.WriteFile(".cache", []byte(s))
+	return util.WriteCache([]byte(s))
 }

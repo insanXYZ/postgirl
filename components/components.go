@@ -1,6 +1,10 @@
 package components
 
 import (
+	"postgirl/components/common"
+	"postgirl/internal/cache"
+	"postgirl/model"
+
 	"github.com/rivo/tview"
 )
 
@@ -35,4 +39,13 @@ func (c *Components) listenChan() {
 
 func (c *Components) Root() tview.Primitive {
 	return c.Layout
+}
+
+func SaveCache() {
+	err := cache.CacheRequests.Save()
+	if err != nil {
+		common.ShowNotification(&common.NotificationConfig{
+			Message: model.ErrSaveCache,
+		})
+	}
 }

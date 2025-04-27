@@ -20,6 +20,13 @@ func NewSidebar() *Sidebar {
 	sidebar := Sidebar{}
 	sidebar.NewList()
 
+	if m, err := util.ReadCache(); err == nil {
+		for i, v := range m {
+			cache.CacheRequests.Create(i)
+			cache.CacheRequests.SetRequest(i, &v)
+			sidebar.AddList(i)
+		}
+	}
 	return &sidebar
 }
 
@@ -36,9 +43,11 @@ func (s *Sidebar) showModalAddRequest() {
 	})
 
 	form.AddButton("create", func() {
-		cache.CacheRequests.Create(name, NewRequestResponsePanel)
+		cache.CacheRequests.Create(name)
 		s.AddList(name)
 		common.RemoveModal(modal)
+
+		SaveCache()
 	})
 
 	modal = common.ShowModal(&common.ModalConfig{
@@ -102,6 +111,8 @@ func (s *Sidebar) showModalRemoveRequest() {
 			}
 
 			selectedRequests = make(map[string]int)
+
+			SaveCache()
 		},
 	})
 

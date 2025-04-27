@@ -5,6 +5,7 @@ import (
 	"postgirl/lib"
 	"postgirl/model"
 	"postgirl/util"
+	"slices"
 
 	"github.com/rivo/tview"
 )
@@ -64,14 +65,15 @@ func (r *RequestResponsePanel) NewAttribute() {
 
 	dropdownBodyType := common.CreateDropdown(&common.DropdownConfig{
 		Options:        model.BodyOptions,
-		CurrentOptions: 0,
+		CurrentOptions: slices.Index(model.BodyOptions, r.currentRequest.Attribute.BodyType),
 		SelectedFunc: func(text string, _ int) {
 			attr.BodyTypeSelected = text
 		},
 	})
 
 	bodyTextArea := common.CreateTextArea(&common.TextAreaConfig{
-		Border: true,
+		Border:       true,
+		DefaultValue: r.currentRequest.Attribute.BodyString,
 	})
 
 	attr.BodyTextArea = bodyTextArea

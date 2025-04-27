@@ -29,6 +29,11 @@ func (c *Components) NewLayout() {
 func (c *Components) ChangePanel(label string) {
 	panel := cache.CacheRequests.GetPanel(label)
 
+	if panel == nil {
+		cache.CacheRequests.SetPanel(label, NewRequestResponsePanel(cache.CacheRequests.GetRequest(label)))
+		panel = cache.CacheRequests.GetPanel(label)
+	}
+
 	if c.Layout.GetItemCount() == 2 {
 		c.Layout.RemoveItem(c.Layout.GetItem(c.Layout.GetItemCount() - 1))
 	}

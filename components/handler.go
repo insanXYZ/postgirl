@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"postgirl/components/common"
-	"postgirl/internal/cache"
 	"postgirl/lib"
 	"postgirl/model"
 	"postgirl/util"
@@ -127,21 +126,17 @@ func (r *RequestResponsePanel) HandlerSend() {
 		Method: r.inputBar.Method,
 		Url:    valInputUrl,
 		Attribute: &model.Attribute{
-			Params:   paramsMap,
-			Headers:  headersMap,
-			BodyType: r.attribute.BodyTypeSelected,
-			Body:     bodyReader,
+			Params:     paramsMap,
+			Headers:    headersMap,
+			BodyString: body,
+			BodyType:   r.attribute.BodyTypeSelected,
+			Body:       bodyReader,
 		},
 	}
 
 	defer func() {
 		*r.currentRequest = *req
-		err := cache.CacheRequests.Save()
-		if err != nil {
-			common.ShowNotification(&common.NotificationConfig{
-				Message: model.ErrSaveCache,
-			})
-		}
+		SaveCache()
 	}()
 
 	res, err := util.NewRequest(req)
