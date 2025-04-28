@@ -64,35 +64,39 @@ func (s *Sidebar) showModalAddRequest() {
 
 func (s *Sidebar) showModalInfo() {
 
-	text := `	URL
+	text := `[blue]URL[white]
 
-	example = http://example.com
+[yellow]example[white] = http://example.com?foo=bar
 
-	PARAMS
+[blue]PARAMS[white]
+
+[yellow]example[white] = {
+			"name": ["john doe"[]
+		  }
+
+[blue]HEADERS[white]
 	
-	example = {
-				"name": ["john doe"]
-			  }
-
-	HEADERS
+[yellow]example[white] = {
+			"Custom-Header": "123"
+		  }
 	
-	example = {
-				"Custom-Header": "123"
-			  }
+[blue]BODY[white]
+
+[yellow]type[white] = application/xml
+[yellow]example[white] = <person>
+			<name>
+				john doe
+			</name>
+		  </person>
+
+[yellow]type[white] = application/json, application/x-www-form-urlencoded, form-data
+[yellow]example[white] = {
+			"name": "john doe"
+		  }
 	
-	BODY
-
-	type = application/xml
-	example = <person>
-				<name>
-					john doe
-				</name>
-			  </person>
-
-	type = application/json, application/x-www-form-urlencoded, form-data
-	example = {
-				"name": "john doe"
-			  }
+[blue]FAQ[white]
+[yellow]how to copy text from text area?[white]
+You can select/block the text, and use combination ctrl + b
 	`
 
 	content := common.CreateTextView(&common.TextViewConfig{
@@ -104,8 +108,8 @@ func (s *Sidebar) showModalInfo() {
 	common.ShowModal(&common.ModalConfig{
 		Content:     content,
 		Title:       " ❗Info ",
-		Width:       55,
-		Height:      10,
+		Width:       60,
+		Height:      15,
 		BorderColor: color.BORDER,
 		CloseButton: true,
 		TitleAlign:  tview.AlignCenter,

@@ -19,7 +19,9 @@ func CreateTextView(cfg *TextViewConfig) *tview.TextView {
 	textView.SetTextAlign(cfg.Align)
 	textView.SetScrollable(true)
 	textView.SetTextColor(color.LABEL)
+	textView.SetDynamicColors(true)
 	textView.SetBorderColor(color.BORDER)
+	textView.SetWrap(false)
 	textView.SetBackgroundColor(color.BACKGROUND)
 	return textView
 }
