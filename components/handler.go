@@ -86,13 +86,16 @@ func (r *RequestResponsePanel) HandlerSend() {
 		var err error
 
 		if r.attribute.BodyTypeSelected != model.XML {
-			err := util.JsonUnmarshal([]byte(body), &mapBody)
-			if err != nil {
-				common.ShowNotification(&common.NotificationConfig{
-					Message: model.ErrInvalidFormatBody,
-				})
-				return
-			}
+			err = util.JsonUnmarshal([]byte(body), &mapBody)
+		} else {
+			mapBody, err = util.XmlUnmarshal([]byte(body))
+		}
+
+		if err != nil {
+			common.ShowNotification(&common.NotificationConfig{
+				Message: model.ErrInvalidFormatBody,
+			})
+			return
 		}
 
 		switch r.attribute.BodyTypeSelected {
@@ -103,7 +106,7 @@ func (r *RequestResponsePanel) HandlerSend() {
 		case model.BodyOptions[3]: // json
 			bodyReader, err = util.CreateReaderJsonType(mapBody)
 		case model.BodyOptions[4]: // xml
-			bodyReader, err = util.CreateReaderXmlType(body)
+			bodyReader, err = util.CreateReaderXmlType(mapBody)
 		}
 
 		if err != nil {

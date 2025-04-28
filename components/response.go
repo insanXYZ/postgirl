@@ -28,37 +28,37 @@ func (r *Response) Reset() {
 
 func (r *Response) ListenChan() {
 	for load := range r.Loading {
-			lib.Tview.UpdateDraw(func() {
-				if r.Menu.GetItemCount() == 5 {
-					r.Menu.RemoveItem(r.Menu.GetItem(4))
-				}
-
-				if load {
-					r.Menu.AddItem(common.CreateTextView(&common.TextViewConfig{
-						Text:   "loading...",
-						Border: false,
-					}), 10, 1, false)
-				} else {
-					if r.StatusCode != "" {
-						var bgColor tcell.Color
-
-						statusCode, _ := strconv.Atoi(r.StatusCode)
-
-						if statusCode < 400 {
-							bgColor = color.SUCCESS
-						} else {
-							bgColor = color.ERROR
-						}
-
-						tag := common.CreateTag(&common.TagConfig{
-							Label:           r.StatusCode,
-							BackgroundColor: bgColor,
-						})
-
-						r.Menu.AddItem(tag, 6, 1, false)
-					}
+		lib.Tview.UpdateDraw(func() {
+			if r.Menu.GetItemCount() == 5 {
+				r.Menu.RemoveItem(r.Menu.GetItem(4))
 			}
-			})
+
+			if load {
+				r.Menu.AddItem(common.CreateTextView(&common.TextViewConfig{
+					Text:   "loading...",
+					Border: false,
+				}), 10, 1, false)
+			} else {
+				if r.StatusCode != "" {
+					var bgColor tcell.Color
+
+					statusCode, _ := strconv.Atoi(r.StatusCode)
+
+					if statusCode < 400 {
+						bgColor = color.SUCCESS
+					} else {
+						bgColor = color.ERROR
+					}
+
+					tag := common.CreateTag(&common.TagConfig{
+						Label:           r.StatusCode,
+						BackgroundColor: bgColor,
+					})
+
+					r.Menu.AddItem(tag, 6, 1, false)
+				}
+			}
+		})
 	}
 
 }
@@ -77,8 +77,12 @@ func (r *RequestResponsePanel) NewResponse() {
 	}
 	go response.ListenChan()
 
-	bodyButton := tview.NewButton("Body")
-	headersButton := tview.NewButton("Headers")
+	bodyButton := common.CreateButton(&common.ButtonConfig{
+		Label: "Body",
+	})
+	headersButton := common.CreateButton(&common.ButtonConfig{
+		Label: "Headers",
+	})
 
 	responseMenu := common.CreateFlex(&common.FlexConfig{
 		Border:    true,

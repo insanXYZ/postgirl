@@ -1,6 +1,8 @@
 package lib
 
-import "github.com/rivo/tview"
+import (
+	"github.com/rivo/tview"
+)
 
 var Tview *tviewApp
 
@@ -13,8 +15,10 @@ type tviewApp struct {
 }
 
 func newTviewApp() *tviewApp {
+	app := tview.NewApplication()
+
 	return &tviewApp{
-		Application: tview.NewApplication(),
+		Application: app,
 	}
 }
 

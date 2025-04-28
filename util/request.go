@@ -104,12 +104,13 @@ func CreateReaderJsonType(body model.BodyMap) (io.Reader, error) {
 	return bytes.NewReader(b), err
 }
 
-func CreateReaderXmlType(body string) (io.Reader, error) {
-	m, err := mxj.NewMapXml([]byte(body))
+func CreateReaderXmlType(body model.BodyMap) (io.Reader, error) {
+	m := mxj.Map(body)
+	b, err := m.Xml()
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := m.Xml()
-	return bytes.NewReader(b), err
+	return bytes.NewReader(b), nil
+
 }
