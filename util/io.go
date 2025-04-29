@@ -45,3 +45,7 @@ func ReadCache() (map[string]model.Request, error) {
 	return m, err
 
 }
+
+func ReadDir(dirName string) ([]os.DirEntry, error) {
+	return os.ReadDir(dirName)
+}

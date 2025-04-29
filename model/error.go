@@ -11,4 +11,5 @@ const (
 	ErrReadResponseBody     = "error read response body"
 	ErrReadHeader           = "error read response header"
 	ErrSaveCache            = "error save request to cache"
+	ErrReadDir              = "error read directory"
 )
