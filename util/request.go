@@ -8,6 +8,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"postgirl/model"
 	"strings"
 
@@ -70,15 +72,51 @@ func CreateReaderFormDataType(body model.BodyMap) (io.Reader, string, error) {
 	multipart := multipart.NewWriter(buf)
 
 	for i, v := range body {
-		writer, err := multipart.CreateFormField(i)
-		if err != nil {
-			return nil, "", err
+
+		if strings.Contains(i, ":file") {
+			splits := strings.Split(i, ":")
+			if len(splits) == 0 {
+				return nil, "", errors.New(model.ErrInvalidFormatFileFormData)
+			}
+
+			fieldName := splits[0]
+
+			files, ok := v.([]string)
+			if !ok {
+				return nil, "", errors.New(model.ErrInvalidFormatFileFormData)
+			}
+
+			for _, filePath := range files {
+				fileName := filepath.Base(filePath)
+
+				fileWriter, err := multipart.CreateFormFile(fieldName, fileName)
+				if err != nil {
+					return nil, "", errors.New(model.ErrCreateFormDataBody)
+				}
+
+				file, err := os.Open(filePath)
+				if err != nil {
+					return nil, "", fmt.Errorf("%s %s", model.ErrReadFileFormData, filePath)
+				}
+
+				_, err = io.Copy(fileWriter, file)
+				if err != nil {
+					return nil, "", errors.New(model.ErrCreateFormDataBody)
+				}
+			}
+
+		} else {
+			writer, err := multipart.CreateFormField(i)
+			if err != nil {
+				return nil, "", err
+			}
+
+			_, err = writer.Write([]byte(v.(string)))
+			if err != nil {
+				return nil, "", err
+			}
 		}
 
-		_, err = writer.Write([]byte(v.(string)))
-		if err != nil {
-			return nil, "", err
-		}
 	}
 
 	err := multipart.Close()

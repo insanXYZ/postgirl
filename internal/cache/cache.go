@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"errors"
 	"slices"
 
 	"postgirl/model"
@@ -31,7 +32,7 @@ func newCacheRequest() *cacheRequests {
 	}
 }
 
-func (c *cacheRequests) Create(label string) {
+func (c *cacheRequests) Create(label string) error {
 	if _, ok := c.caches[label]; !ok {
 		r := &model.Request{
 			Attribute: new(model.Attribute),
@@ -48,7 +49,11 @@ func (c *cacheRequests) Create(label string) {
 		c.caches[label] = new(fields)
 		c.caches[label].request = r
 		c.listLabel = append(c.listLabel, label)
+	} else {
+		return errors.New(model.ErrCreateRequestDuplicateName)
 	}
+
+	return nil
 }
 
 func (c *cacheRequests) GetRequest(label string) *model.Request {

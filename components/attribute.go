@@ -2,7 +2,6 @@ package components
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"postgirl/components/common"
@@ -25,36 +24,32 @@ type Attribute struct {
 
 func (a *Attribute) ShowModalAddFile() {
 	var currentEntries []os.DirEntry
-	var list *tview.List
+	var selectedFile []string
+	var list *common.List
 	var modal *winman.WindowBase
 	currentPath := "."
 
-	RemoveValuesList := func() {
-		for i := list.GetItemCount(); i >= 0; i-- {
-			list.RemoveItem(i)
-		}
-	}
-
 	ReadAndSetEntries := func(dirName string) error {
-		RemoveValuesList()
+		list.RemoveAll()
 
 		entries, err := util.ReadDir(dirName)
 		if err != nil {
 			return errors.New(model.ErrReadDir + ", error detail :" + err.Error())
 		}
 
-		list.AddItem("↩ ..", "", 0, nil)
+		list.AddItem("↩ ..", false)
 
 		for _, v := range entries {
 			var icon string
+			isDir := v.IsDir()
 
-			if v.IsDir() {
+			if isDir {
 				icon = "📁"
 			} else {
 				icon = "📄"
 			}
 
-			list.AddItem(fmt.Sprintf("%s %s", icon, v.Name()), "", 0, nil)
+			list.AddItem(icon+v.Name(), !isDir)
 		}
 
 		currentEntries = entries
@@ -65,6 +60,31 @@ func (a *Attribute) ShowModalAddFile() {
 
 	list = common.CreateList(&common.ListConfig{
 		Border: false,
+		SetSelectedFunc: func(i int, s string, isCheckbox, checked bool) {
+			var name string
+			var fullPath string
+
+			if i == 0 {
+				name = ".."
+			} else {
+				name = currentEntries[i-1].Name()
+			}
+
+			fullPath = filepath.Join(currentPath, name)
+
+			if i == 0 || currentEntries[i-1].IsDir() {
+				ReadAndSetEntries(fullPath)
+			} else if currentEntries[i-1].Type().IsRegular() {
+				if isCheckbox {
+					if checked {
+						selectedFile = append(selectedFile, fullPath)
+					} else {
+						ind := slices.Index(selectedFile, fullPath)
+						selectedFile = slices.Delete(selectedFile, ind, ind+1)
+					}
+				}
+			}
+		},
 	})
 
 	err := ReadAndSetEntries(currentPath)
@@ -74,21 +94,9 @@ func (a *Attribute) ShowModalAddFile() {
 		})
 	}
 
-	list.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-		var name string
-		var path string
-
-		if i == 0 {
-			name = ".."
-		} else {
-			name = currentEntries[i-1].Name()
-		}
-
-		path = filepath.Join(currentPath, name)
-
-		if i == 0 || currentEntries[i-1].IsDir() {
-			ReadAndSetEntries(path)
-		} else if currentEntries[i-1].Type().IsRegular() {
+	addButton := common.CreateButton(&common.ButtonConfig{
+		Label: "add file",
+		SelectedFunc: func() {
 			var m model.BodyMap
 
 			err := util.JsonUnmarshal([]byte(a.BodyTextArea.GetText()), &m)
@@ -99,7 +107,7 @@ func (a *Attribute) ShowModalAddFile() {
 				return
 			}
 
-			m["field:file"] = path
+			m["field:file"] = selectedFile
 
 			s, err := util.JsonMarshalString(m)
 			if err != nil {
@@ -112,13 +120,18 @@ func (a *Attribute) ShowModalAddFile() {
 			lib.Tview.UpdateDraw(func() {
 				a.BodyTextArea.SetText(s, false)
 			})
-
 			common.RemoveModal(modal)
-		}
+		},
 	})
 
+	flex := common.CreateFlex(&common.FlexConfig{
+		Direction: tview.FlexRow,
+	})
+	flex.AddItem(list, 0, 1, true)
+	flex.AddItem(addButton, 1, 1, false)
+
 	modal = common.ShowModal(&common.ModalConfig{
-		Content:     list,
+		Content:     flex,
 		CloseButton: true,
 		Center:      true,
 		Width:       43,
@@ -143,6 +156,8 @@ func (a *Attribute) SetTextParams(v string) {
 
 func (r *RequestResponsePanel) NewAttribute() {
 	var flexAttribute *tview.Flex
+	var dropdownBodyType *tview.DropDown
+
 	attr := &Attribute{
 		BodyTypeSelected: model.BodyOptions[0],
 	}
@@ -173,24 +188,12 @@ func (r *RequestResponsePanel) NewAttribute() {
 		Label: "Body",
 	})
 
-	addFileButton := common.CreateButton(&common.ButtonConfig{
-		Label: "Add file",
-		SelectedFunc: func() {
-			attr.ShowModalAddFile()
-		},
-	})
-
-	dropdownBodyType := common.CreateDropdown(&common.DropdownConfig{
-		Options:        model.BodyOptions,
-		CurrentOptions: slices.Index(model.BodyOptions, r.currentRequest.Attribute.BodyType),
-		SelectedFunc: func(text string, _ int) {
-			attr.BodyTypeSelected = text
-
-			// if text == model.FORM_DATA {
-
-			// }
-		},
-	})
+	// addFileButton := common.CreateButton(&common.ButtonConfig{
+	// 	Label: "Add file",
+	// 	SelectedFunc: func() {
+	// 		attr.ShowModalAddFile()
+	// 	},
+	// })
 
 	bodyTextArea := common.CreateTextArea(&common.TextAreaConfig{
 		Border:       true,
@@ -209,7 +212,6 @@ func (r *RequestResponsePanel) NewAttribute() {
 	flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	flexButton.AddItem(bodyButton, 10, 1, false)
 	flexButton.AddItem(common.CreateEmptyBox(), 0, 1, false)
-	flexButton.AddItem(addFileButton, 0, 1, false)
 
 	flexAttribute = common.CreateFlex(&common.FlexConfig{
 		Border: false,
@@ -220,12 +222,30 @@ func (r *RequestResponsePanel) NewAttribute() {
 	flexAttribute.AddItem(paramsTextArea, 13, 1, false)
 
 	removedBodyDropdown := func() {
-		if flexButton.GetItemCount() == 7 {
-			lib.Tview.UpdateDraw(func() {
-				flexButton.RemoveItem(flexButton.GetItem(flexButton.GetItemCount() - 1))
-			})
+		if flexButton.GetItemCount() > 6 {
+			for i := flexButton.GetItemCount() - 1; i >= 6; i-- {
+				flexButton.RemoveItem(flexButton.GetItem(i))
+			}
 		}
 	}
+
+	dropdownBodyType = common.CreateDropdown(&common.DropdownConfig{
+		Options:        model.BodyOptions,
+		CurrentOptions: slices.Index(model.BodyOptions, r.currentRequest.Attribute.BodyType),
+		SelectedFunc: func(text string, _ int) {
+			attr.BodyTypeSelected = text
+
+			// removedBodyDropdown()
+
+			// if text == model.FORM_DATA {
+			// 	flexButton.AddItem(dropdownBodyType, 20, 1, false)
+			// 	flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
+			// 	flexButton.AddItem(addFileButton, 15, 1, false)
+			// } else {
+			// 	flexButton.AddItem(dropdownBodyType, 20, 1, false)
+			// }
+		},
+	})
 
 	bodyButton.SetSelectedFunc(func() {
 		lib.Tview.UpdateDraw(func() {

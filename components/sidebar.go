@@ -5,6 +5,7 @@ import (
 	"postgirl/components/common"
 	"postgirl/internal/cache"
 	"postgirl/lib"
+	"postgirl/model"
 	"postgirl/util"
 
 	"github.com/epiclabs-io/winman"
@@ -43,7 +44,21 @@ func (s *Sidebar) showModalAddRequest() {
 	})
 
 	form.AddButton("create", func() {
-		cache.CacheRequests.Create(name)
+		if len(name) == 0 {
+			common.ShowNotification(&common.NotificationConfig{
+				Message: model.ErrCreateRequestNameRequired,
+			})
+			return
+		}
+
+		err := cache.CacheRequests.Create(name)
+		if err != nil {
+			common.ShowNotification(&common.NotificationConfig{
+				Message: err.Error(),
+			})
+			return
+		}
+
 		s.AddList(name)
 		common.RemoveModal(modal)
 
@@ -64,7 +79,9 @@ func (s *Sidebar) showModalAddRequest() {
 
 func (s *Sidebar) showModalInfo() {
 
-	text := `[blue]URL[white]
+	text := `Note: You can use arrow button for scroll this text info
+
+[blue]URL[white]
 
 [yellow]example[white] = http://example.com?foo=bar
 
@@ -91,7 +108,9 @@ func (s *Sidebar) showModalInfo() {
 
 [yellow]type[white] = application/json, application/x-www-form-urlencoded, form-data
 [yellow]example[white] = {
-			"name": "john doe"
+			"name": "john doe",
+			[red]// specifically for send file on form-data[white]
+			"image:file": ["avatar.jpg","product.png"]
 		  }
 	
 [blue]FAQ[white]
@@ -125,22 +144,17 @@ func (s *Sidebar) showModalRemoveRequest() {
 	listRequest := common.CreateList(
 		&common.ListConfig{
 			Border: false,
+			SetSelectedFunc: func(i int, s string, isCheckbox, checked bool) {
+				if isCheckbox {
+					if checked {
+						selectedRequests[s] = i
+					} else {
+						delete(selectedRequests, s)
+					}
+				}
+			},
 		},
 	)
-	listRequest.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
-		runeLabel := []rune(s1)
-		label := string(runeLabel[4:])
-
-		if _, ok := selectedRequests[label]; ok {
-			runeLabel[1] = ' '
-			delete(selectedRequests, label)
-		} else {
-			runeLabel[1] = 'X'
-			selectedRequests[label] = i
-		}
-
-		listRequest.SetItemText(i, string(runeLabel), "")
-	})
 
 	deleteButton := common.CreateButton(&common.ButtonConfig{
 		Label: "delete",
@@ -169,14 +183,14 @@ func (s *Sidebar) showModalRemoveRequest() {
 	})
 
 	for _, v := range cacheLists {
-		listRequest.AddItem("( ) "+v, "", 0, nil)
+		listRequest.AddItem(v, true)
 	}
 
 	flexContent := common.CreateFlex(&common.FlexConfig{
 		Border:    false,
 		Direction: tview.FlexRow,
 	})
-	flexContent.AddItem(listRequest, 0, 1, false)
+	flexContent.AddItem(listRequest.GetRoot(), 0, 1, false)
 	flexContent.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	flexContent.AddItem(deleteButton, 1, 1, false)
 
@@ -195,7 +209,7 @@ func (s *Sidebar) NewList() {
 	list := common.CreateList(&common.ListConfig{
 		Border: true,
 	})
-	s.list = list
+	s.list = list.GetRoot()
 
 	actionsFlex := common.CreateFlex(&common.FlexConfig{
 		Border:    true,
@@ -226,7 +240,7 @@ func (s *Sidebar) NewList() {
 	})
 	sidebarFlex.SetDirection(tview.FlexRow)
 	sidebarFlex.AddItem(actionsFlex, 3, 1, false)
-	sidebarFlex.AddItem(list, 0, 1, false)
+	sidebarFlex.AddItem(list.GetRoot(), 0, 1, false)
 
 	s.root = sidebarFlex
 }
