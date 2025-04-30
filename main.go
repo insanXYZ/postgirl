@@ -22,4 +22,5 @@ func main() {
 	if err != nil {
 		fmt.Printf("%v\n%v", model.ErrStartApp, "error detail :"+err.Error())
 	}
+
 }

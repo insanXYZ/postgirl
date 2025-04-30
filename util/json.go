@@ -14,3 +14,7 @@ func JsonMarshalString(v any) (string, error) {
 func JsonUnmarshal(data []byte, v any) error {
 	return json.Unmarshal(data, v)
 }
+
+func IsValidJson(s string) bool {
+	return json.Valid([]byte(s))
+}

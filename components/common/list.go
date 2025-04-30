@@ -7,7 +7,7 @@ import (
 )
 
 type List struct {
-	*tview.List
+	root *tview.List
 }
 
 type ListConfig struct {
@@ -22,7 +22,7 @@ func CreateList(cfg *ListConfig) *List {
 	l.SetBorder(cfg.Border)
 	l.SetBorderColor(color.BORDER)
 	l.SetBackgroundColor(color.BACKGROUND)
-	list.List = l
+	list.root = l
 
 	l.SetSelectedFunc(func(i int, s1, s2 string, r rune) {
 		var checked bool
@@ -57,17 +57,21 @@ func CreateList(cfg *ListConfig) *List {
 }
 
 func (l *List) GetRoot() *tview.List {
-	return l.List
+	return l.root
 }
 
 func (l *List) RemoveAll() {
-	for i := l.List.GetItemCount(); i >= 0; i-- {
-		l.List.RemoveItem(i)
+	count := l.root.GetItemCount()
+
+	if count > 0 {
+		for i := count - 1; i >= 0; i-- {
+			l.root.RemoveItem(i)
+		}
 	}
 }
 
 func (l *List) RemoveItem(i int) {
-	l.List.RemoveItem(i)
+	l.root.RemoveItem(i)
 }
 
 func (l *List) isCheckbox(s string) bool {
@@ -81,5 +85,5 @@ func (l *List) AddItem(label string, checkBox bool) {
 		label = "( ) " + label
 	}
 
-	l.List.AddItem(label, "", 0, nil)
+	l.root.AddItem(label, "", 0, nil)
 }

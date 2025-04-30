@@ -94,7 +94,7 @@ func (a *Attribute) ShowModalAddFile() {
 		})
 	}
 
-	addButton := common.CreateButton(&common.ButtonConfig{
+	addFileButton := common.CreateButton(&common.ButtonConfig{
 		Label: "add file",
 		SelectedFunc: func() {
 			var m model.BodyMap
@@ -127,8 +127,8 @@ func (a *Attribute) ShowModalAddFile() {
 	flex := common.CreateFlex(&common.FlexConfig{
 		Direction: tview.FlexRow,
 	})
-	flex.AddItem(list, 0, 1, true)
-	flex.AddItem(addButton, 1, 1, false)
+	flex.AddItem(list.GetRoot(), 0, 1, true)
+	flex.AddItem(addFileButton, 1, 1, false)
 
 	modal = common.ShowModal(&common.ModalConfig{
 		Content:     flex,
@@ -188,16 +188,22 @@ func (r *RequestResponsePanel) NewAttribute() {
 		Label: "Body",
 	})
 
-	// addFileButton := common.CreateButton(&common.ButtonConfig{
-	// 	Label: "Add file",
-	// 	SelectedFunc: func() {
-	// 		attr.ShowModalAddFile()
-	// 	},
-	// })
-
 	bodyTextArea := common.CreateTextArea(&common.TextAreaConfig{
 		Border:       true,
 		DefaultValue: r.currentRequest.Attribute.BodyString,
+	})
+
+	addFileButton := common.CreateButton(&common.ButtonConfig{
+		Label: "Add file",
+		SelectedFunc: func() {
+			if !util.IsValidJson(bodyTextArea.GetText()) {
+				common.ShowNotification(&common.NotificationConfig{
+					Message: model.ErrInvalidFormatBody,
+				})
+				return
+			}
+			attr.ShowModalAddFile()
+		},
 	})
 
 	attr.BodyTextArea = bodyTextArea
@@ -221,7 +227,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 	flexAttribute.AddItem(flexButton, 3, 1, false)
 	flexAttribute.AddItem(paramsTextArea, 13, 1, false)
 
-	removedBodyDropdown := func() {
+	removeBodyDropdown := func() {
 		if flexButton.GetItemCount() > 6 {
 			for i := flexButton.GetItemCount() - 1; i >= 6; i-- {
 				flexButton.RemoveItem(flexButton.GetItem(i))
@@ -232,19 +238,19 @@ func (r *RequestResponsePanel) NewAttribute() {
 	dropdownBodyType = common.CreateDropdown(&common.DropdownConfig{
 		Options:        model.BodyOptions,
 		CurrentOptions: slices.Index(model.BodyOptions, r.currentRequest.Attribute.BodyType),
-		SelectedFunc: func(text string, _ int) {
-			attr.BodyTypeSelected = text
+	})
+	dropdownBodyType.SetSelectedFunc(func(text string, index int) {
+		attr.BodyTypeSelected = text
 
-			// removedBodyDropdown()
+		removeBodyDropdown()
 
-			// if text == model.FORM_DATA {
-			// 	flexButton.AddItem(dropdownBodyType, 20, 1, false)
-			// 	flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
-			// 	flexButton.AddItem(addFileButton, 15, 1, false)
-			// } else {
-			// 	flexButton.AddItem(dropdownBodyType, 20, 1, false)
-			// }
-		},
+		if text == model.FORM_DATA {
+			flexButton.AddItem(dropdownBodyType, 20, 1, false)
+			flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
+			flexButton.AddItem(addFileButton, 15, 1, false)
+		} else {
+			flexButton.AddItem(dropdownBodyType, 20, 1, false)
+		}
 	})
 
 	bodyButton.SetSelectedFunc(func() {
@@ -261,7 +267,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 	})
 
 	paramsButton.SetSelectedFunc(func() {
-		removedBodyDropdown()
+		removeBodyDropdown()
 		lib.Tview.UpdateDraw(func() {
 			flexAttribute.RemoveItem(flexAttribute.GetItem(flexAttribute.GetItemCount() - 1))
 			flexAttribute.AddItem(paramsTextArea, 13, 1, false)
@@ -269,7 +275,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 	})
 
 	headersButton.SetSelectedFunc(func() {
-		removedBodyDropdown()
+		removeBodyDropdown()
 		lib.Tview.UpdateDraw(func() {
 			flexAttribute.RemoveItem(flexAttribute.GetItem(flexAttribute.GetItemCount() - 1))
 			flexAttribute.AddItem(headersTextArea, 13, 1, false)
