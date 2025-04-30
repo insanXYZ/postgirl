@@ -22,6 +22,12 @@ const (
 )
 
 const (
+	ENCODE_GZIP    = "gzip"
+	ENCODE_BR      = "br"
+	ENCODE_DEFLATE = "deflate"
+)
+
+const (
 	NONE                  = "none"
 	FORM_DATA             = "form-data"
 	X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded"

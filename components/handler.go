@@ -20,6 +20,8 @@ func (r *RequestResponsePanel) HandlerSend() {
 	var valInputUrl string
 	var bodyReader io.Reader
 
+	bodyType := r.attribute.BodyTypeSelected
+
 	// reset response and show loading information
 	r.response.Reset()
 	r.response.Loading <- true
@@ -100,7 +102,7 @@ func (r *RequestResponsePanel) HandlerSend() {
 
 		switch r.attribute.BodyTypeSelected {
 		case model.BodyOptions[1]: // form data
-			bodyReader, r.attribute.BodyTypeSelected, err = util.CreateReaderFormDataType(mapBody)
+			bodyReader, bodyType, err = util.CreateReaderFormDataType(mapBody)
 		case model.BodyOptions[2]: // x-www-form-urlencoded
 			bodyReader = util.CreateReaderXWWWFormUrlencodedType(mapBody)
 		case model.BodyOptions[3]: // json
@@ -111,10 +113,11 @@ func (r *RequestResponsePanel) HandlerSend() {
 
 		if err != nil {
 			common.ShowNotification(&common.NotificationConfig{
-				Message: model.ErrInvalidFormatBody,
+				Message: err.Error(),
 			})
 			return
 		}
+
 	}
 
 	lib.Tview.UpdateDraw(func() {
@@ -132,17 +135,18 @@ func (r *RequestResponsePanel) HandlerSend() {
 			Params:     paramsMap,
 			Headers:    headersMap,
 			BodyString: body,
-			BodyType:   r.attribute.BodyTypeSelected,
+			BodyType:   bodyType,
 			Body:       bodyReader,
 		},
 	}
 
 	defer func() {
+		req.Attribute.BodyType = r.attribute.BodyTypeSelected
 		*r.currentRequest = *req
 		SaveCache()
 	}()
 
-	res, err := util.NewRequest(req)
+	res, bodyReader, err := util.NewRequest(req)
 	if err != nil {
 		common.ShowNotification(&common.NotificationConfig{
 			Message: err.Error(),
@@ -150,12 +154,10 @@ func (r *RequestResponsePanel) HandlerSend() {
 		return
 	}
 
-	defer res.Body.Close()
-
 	var headerJson string
 	var resBody string
 
-	b, err := io.ReadAll(res.Body)
+	b, err := io.ReadAll(bodyReader)
 	if err != nil {
 		common.ShowNotification(&common.NotificationConfig{
 			Message: model.ErrReadResponseBody,
@@ -167,7 +169,7 @@ func (r *RequestResponsePanel) HandlerSend() {
 	headerJson, err = util.JsonMarshalString(res.Header)
 	if err != nil {
 		common.ShowNotification(&common.NotificationConfig{
-			Message: model.ErrReadHeader,
+			Message: model.ErrReadResponseHeader,
 		})
 		return
 	}

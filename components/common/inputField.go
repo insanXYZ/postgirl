@@ -8,15 +8,21 @@ import (
 
 type InputFieldConfig struct {
 	Placeholder string
+	Label       string
 	DefaultText string
 	ChangedFunc func(text string)
 }
 
-func CreateInputField(config *InputFieldConfig) *tview.InputField {
+func CreateInputField(cfg *InputFieldConfig) *tview.InputField {
 	inputField := tview.NewInputField()
-	inputField.SetPlaceholder(config.Placeholder)
-	inputField.SetChangedFunc(config.ChangedFunc)
-	inputField.SetText(config.DefaultText)
+	inputField.SetPlaceholder(cfg.Placeholder)
+	inputField.SetChangedFunc(cfg.ChangedFunc)
+	inputField.SetText(cfg.DefaultText)
+	inputField.SetTitleColor(color.LABEL)
+
+	if cfg.Label != "" {
+		inputField.SetLabel(cfg.Label + " ")
+	}
 
 	inputField.SetPlaceholderTextColor(color.PLACEHOLDER)
 	inputField.SetBackgroundColor(color.BACKGROUND_COMPONENT)

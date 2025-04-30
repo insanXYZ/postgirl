@@ -50,7 +50,7 @@ func (c *cacheRequests) Create(label string) error {
 		c.caches[label].request = r
 		c.listLabel = append(c.listLabel, label)
 	} else {
-		return errors.New(model.ErrCreateRequestDuplicateName)
+		return errors.New(model.ErrDuplicateName)
 	}
 
 	return nil

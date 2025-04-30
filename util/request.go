@@ -2,6 +2,8 @@ package util
 
 import (
 	"bytes"
+	"compress/flate"
+	"compress/gzip"
 	"errors"
 	"fmt"
 	"io"
@@ -13,13 +15,17 @@ import (
 	"postgirl/model"
 	"strings"
 
+	"github.com/andybalholm/brotli"
 	"github.com/clbanning/mxj/v2"
 )
 
-func NewRequest(r *model.Request) (*http.Response, error) {
+func NewRequest(r *model.Request) (*http.Response, io.Reader, error) {
+	var body io.Reader
+	var err error
+
 	req, err := http.NewRequest(model.Methods[r.Method], r.Url, r.Attribute.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	for i, v := range r.Attribute.Headers {
@@ -31,7 +37,30 @@ func NewRequest(r *model.Request) (*http.Response, error) {
 	}
 
 	client := http.Client{}
-	return client.Do(req)
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	defer res.Body.Close()
+
+	encode := res.Header.Get("Accept-Encoding")
+
+	switch encode {
+	case model.ENCODE_GZIP:
+		body, err = gzip.NewReader(res.Body)
+	case model.ENCODE_BR:
+		body = brotli.NewReader(res.Body)
+	case model.ENCODE_DEFLATE:
+		body = flate.NewReader(res.Body)
+	}
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return res, body, nil
+
 }
 
 type Url struct {
@@ -48,7 +77,7 @@ func ParseUrl(u string) (*Url, error) {
 	}
 
 	if splitUrl[0] != "http" && splitUrl[0] != "https" {
-		return nil, errors.New(model.ErrMissingProtocol)
+		return nil, errors.New(model.ErrProtocolRequired)
 	}
 
 	parse, err := url.Parse(u)
@@ -75,28 +104,33 @@ func CreateReaderFormDataType(body model.BodyMap) (io.Reader, string, error) {
 
 		if strings.Contains(i, ":file") {
 			splits := strings.Split(i, ":")
-			if len(splits) == 0 {
-				return nil, "", errors.New(model.ErrInvalidFormatFileFormData)
+			if len(splits) < 2 {
+				return nil, "", errors.New(model.ErrInvalidFieldnameFile)
 			}
 
 			fieldName := splits[0]
 
-			files, ok := v.([]string)
+			files, ok := v.([]any)
 			if !ok {
-				return nil, "", errors.New(model.ErrInvalidFormatFileFormData)
+				return nil, "", errors.New(model.ErrInvalidFormatFileBody)
 			}
 
 			for _, filePath := range files {
-				fileName := filepath.Base(filePath)
+				filePathString, ok := filePath.(string)
+				if !ok {
+					return nil, "", errors.New(model.ErrInvalidFormatFileBody)
+				}
+
+				fileName := filepath.Base(filePathString)
 
 				fileWriter, err := multipart.CreateFormFile(fieldName, fileName)
 				if err != nil {
 					return nil, "", errors.New(model.ErrCreateFormDataBody)
 				}
 
-				file, err := os.Open(filePath)
+				file, err := os.Open(filePathString)
 				if err != nil {
-					return nil, "", fmt.Errorf("%s %s", model.ErrReadFileFormData, filePath)
+					return nil, "", fmt.Errorf("%s %s", model.ErrReadFileFormData, filePathString)
 				}
 
 				_, err = io.Copy(fileWriter, file)

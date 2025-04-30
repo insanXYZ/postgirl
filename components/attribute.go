@@ -2,6 +2,7 @@ package components
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"postgirl/components/common"
@@ -9,6 +10,7 @@ import (
 	"postgirl/model"
 	"postgirl/util"
 	"slices"
+	"strings"
 
 	"github.com/epiclabs-io/winman"
 	"github.com/rivo/tview"
@@ -27,6 +29,7 @@ func (a *Attribute) ShowModalAddFile() {
 	var selectedFile []string
 	var list *common.List
 	var modal *winman.WindowBase
+	var fieldName string
 	currentPath := "."
 
 	ReadAndSetEntries := func(dirName string) error {
@@ -34,7 +37,7 @@ func (a *Attribute) ShowModalAddFile() {
 
 		entries, err := util.ReadDir(dirName)
 		if err != nil {
-			return errors.New(model.ErrReadDir + ", error detail :" + err.Error())
+			return errors.New(model.ErrReadDirectory)
 		}
 
 		list.AddItem("↩ ..", false)
@@ -87,6 +90,13 @@ func (a *Attribute) ShowModalAddFile() {
 		},
 	})
 
+	fieldNameInput := common.CreateInputField(&common.InputFieldConfig{
+		Label: "Fieldname",
+		ChangedFunc: func(text string) {
+			fieldName = text
+		},
+	})
+
 	err := ReadAndSetEntries(currentPath)
 	if err != nil {
 		common.ShowNotification(&common.NotificationConfig{
@@ -99,6 +109,15 @@ func (a *Attribute) ShowModalAddFile() {
 		SelectedFunc: func() {
 			var m model.BodyMap
 
+			trim := strings.TrimSpace(fieldName)
+
+			if len(trim) == 0 {
+				common.ShowNotification(&common.NotificationConfig{
+					Message: model.ErrNameRequired,
+				})
+				return
+			}
+
 			err := util.JsonUnmarshal([]byte(a.BodyTextArea.GetText()), &m)
 			if err != nil {
 				common.ShowNotification(&common.NotificationConfig{
@@ -107,7 +126,7 @@ func (a *Attribute) ShowModalAddFile() {
 				return
 			}
 
-			m["field:file"] = selectedFile
+			m[fmt.Sprintf("%s:file", trim)] = selectedFile
 
 			s, err := util.JsonMarshalString(m)
 			if err != nil {
@@ -128,6 +147,8 @@ func (a *Attribute) ShowModalAddFile() {
 		Direction: tview.FlexRow,
 	})
 	flex.AddItem(list.GetRoot(), 0, 1, true)
+	flex.AddItem(fieldNameInput, 1, 1, false)
+	flex.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	flex.AddItem(addFileButton, 1, 1, false)
 
 	modal = common.ShowModal(&common.ModalConfig{
@@ -135,7 +156,7 @@ func (a *Attribute) ShowModalAddFile() {
 		CloseButton: true,
 		Center:      true,
 		Width:       43,
-		Height:      11,
+		Height:      15,
 		Title:       " 🔗 Add File ",
 		TitleAlign:  tview.AlignCenter,
 	})
@@ -159,7 +180,7 @@ func (r *RequestResponsePanel) NewAttribute() {
 	var dropdownBodyType *tview.DropDown
 
 	attr := &Attribute{
-		BodyTypeSelected: model.BodyOptions[0],
+		BodyTypeSelected: r.currentRequest.Attribute.BodyType,
 	}
 
 	paramsButton := common.CreateButton(&common.ButtonConfig{
@@ -257,6 +278,11 @@ func (r *RequestResponsePanel) NewAttribute() {
 		lib.Tview.UpdateDraw(func() {
 			if flexButton.GetItemCount() == 6 {
 				flexButton.AddItem(dropdownBodyType, 20, 1, false)
+
+				if attr.BodyTypeSelected == model.FORM_DATA {
+					flexButton.AddItem(common.CreateEmptyBox(), 1, 1, false)
+					flexButton.AddItem(addFileButton, 15, 1, false)
+				}
 			}
 
 			if flexAttribute.GetItemCount() == 2 {

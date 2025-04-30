@@ -46,7 +46,7 @@ func (s *Sidebar) showModalAddRequest() {
 	form.AddButton("create", func() {
 		if len(name) == 0 {
 			common.ShowNotification(&common.NotificationConfig{
-				Message: model.ErrCreateRequestNameRequired,
+				Message: model.ErrNameRequired,
 			})
 			return
 		}
