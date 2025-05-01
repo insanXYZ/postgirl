@@ -41,10 +41,9 @@ func NewRequest(r *model.Request) (*http.Response, io.Reader, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	// defer res.Body.Close()
 
-	defer res.Body.Close()
-
-	encode := res.Header.Get("Accept-Encoding")
+	encode := res.Header.Get("Content-Encoding")
 
 	switch encode {
 	case model.ENCODE_GZIP:
@@ -53,6 +52,8 @@ func NewRequest(r *model.Request) (*http.Response, io.Reader, error) {
 		body = brotli.NewReader(res.Body)
 	case model.ENCODE_DEFLATE:
 		body = flate.NewReader(res.Body)
+	default:
+		body = res.Body
 	}
 
 	if err != nil {

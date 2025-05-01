@@ -154,6 +154,8 @@ func (r *RequestResponsePanel) HandlerSend() {
 		return
 	}
 
+	defer res.Body.Close()
+
 	var headerJson string
 	var resBody string
 
