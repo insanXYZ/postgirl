@@ -22,8 +22,8 @@ You can visit to [releases page](https://github.com/insanXYZ/postgirl/releases),
 ```bash
 git clone https://github.com/insanXYZ/postgirl
 cd postgirl/
+go mod tidy
 go build
-chmod a+x ./postgirl
 ./postgirl
 ```
 
