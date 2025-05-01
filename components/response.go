@@ -26,13 +26,21 @@ func (r *Response) Reset() {
 	})
 }
 
+func (r *Response) removeStatus() {
+	if r.Menu.GetItemCount() > 4 {
+		for i := r.Menu.GetItemCount() - 1; i > 3; i-- {
+			r.Menu.RemoveItem(r.Menu.GetItem(i))
+		}
+	}
+}
+
 func (r *Response) ListenChan() {
 	for load := range r.Loading {
-		if r.Menu.GetItemCount() == 5 {
-			r.Menu.RemoveItem(r.Menu.GetItem(4))
-		}
+
+		r.removeStatus()
 
 		if load {
+			r.StatusCode = ""
 			r.Menu.AddItem(common.CreateTextView(&common.TextViewConfig{
 				Text:   "loading...",
 				Border: false,
@@ -71,7 +79,7 @@ func (r *Response) SetHeaderText(text string) {
 
 func (r *RequestResponsePanel) NewResponse() {
 	response := &Response{
-		Loading: make(chan bool),
+		Loading: make(chan bool, 2),
 	}
 	go response.ListenChan()
 

@@ -18,6 +18,7 @@ const (
 	ErrReadResponseBody   = "error read response body"
 	ErrReadResponseHeader = "error read response header"
 	ErrReadDirectory      = "error read directory"
+	ErrTypeUnknown        = "content type unknown"
 
 	//Cache
 	ErrSaveCache = "error save request to cache"

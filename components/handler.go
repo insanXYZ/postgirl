@@ -23,7 +23,6 @@ func (r *RequestResponsePanel) HandlerSend() {
 	bodyType := r.attribute.BodyTypeSelected
 
 	// reset response and show loading information
-	r.response.Reset()
 	r.response.Loading <- true
 	defer func() {
 		r.response.Loading <- false
@@ -87,10 +86,10 @@ func (r *RequestResponsePanel) HandlerSend() {
 		var mapBody model.BodyMap
 		var err error
 
-		if r.attribute.BodyTypeSelected != model.XML {
-			err = util.JsonUnmarshal([]byte(body), &mapBody)
-		} else {
+		if r.attribute.BodyTypeSelected == model.XML {
 			mapBody, err = util.XmlUnmarshal([]byte(body))
+		} else {
+			err = util.JsonUnmarshal([]byte(body), &mapBody)
 		}
 
 		if err != nil {
@@ -100,16 +99,7 @@ func (r *RequestResponsePanel) HandlerSend() {
 			return
 		}
 
-		switch r.attribute.BodyTypeSelected {
-		case model.BodyOptions[1]: // form data
-			bodyReader, bodyType, err = util.CreateReaderFormDataType(mapBody)
-		case model.BodyOptions[2]: // x-www-form-urlencoded
-			bodyReader = util.CreateReaderXWWWFormUrlencodedType(mapBody)
-		case model.BodyOptions[3]: // json
-			bodyReader, err = util.CreateReaderJsonType(mapBody)
-		case model.BodyOptions[4]: // xml
-			bodyReader, err = util.CreateReaderXmlType(mapBody)
-		}
+		bodyReader, bodyType, err = util.CreateReader(bodyType, mapBody)
 
 		if err != nil {
 			common.ShowNotification(&common.NotificationConfig{

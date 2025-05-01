@@ -97,6 +97,22 @@ func ParseUrl(u string) (*Url, error) {
 	return &res, nil
 }
 
+var contentTypeHandlers = map[string]func(model.BodyMap) (io.Reader, string, error){
+	model.JSON:                  CreateReaderJsonType,
+	model.XML:                   CreateReaderXmlType,
+	model.X_WWW_FORM_URLENCODED: CreateReaderXWWWFormUrlencodedType,
+	model.FORM_DATA:             CreateReaderFormDataType,
+}
+
+func CreateReader(bodyType string, body model.BodyMap) (io.Reader, string, error) {
+	f, ok := contentTypeHandlers[bodyType]
+	if !ok {
+		return nil, "", errors.New(model.ErrTypeUnknown)
+	}
+
+	return f(body)
+}
+
 func CreateReaderFormDataType(body model.BodyMap) (io.Reader, string, error) {
 	buf := &bytes.Buffer{}
 	multipart := multipart.NewWriter(buf)
@@ -162,28 +178,32 @@ func CreateReaderFormDataType(body model.BodyMap) (io.Reader, string, error) {
 	return buf, multipart.FormDataContentType(), nil
 }
 
-func CreateReaderXWWWFormUrlencodedType(body model.BodyMap) io.Reader {
+func CreateReaderXWWWFormUrlencodedType(body model.BodyMap) (io.Reader, string, error) {
 	data := url.Values{}
 
 	for i, v := range body {
-		data.Set(i, v.(string))
+		sv, ok := v.(string)
+		if !ok {
+			return nil, "", errors.New(model.ErrInvalidFormatBody)
+		}
+		data.Set(i, sv)
 	}
 
-	return strings.NewReader(data.Encode())
+	return strings.NewReader(data.Encode()), model.CONTENT_TYPE_X_WWW_FORM_URLENCODED, nil
 }
 
-func CreateReaderJsonType(body model.BodyMap) (io.Reader, error) {
+func CreateReaderJsonType(body model.BodyMap) (io.Reader, string, error) {
 	b, err := JsonMarshal(body)
-	return bytes.NewReader(b), err
+	return bytes.NewReader(b), model.CONTENT_TYPE_JSON, err
 }
 
-func CreateReaderXmlType(body model.BodyMap) (io.Reader, error) {
+func CreateReaderXmlType(body model.BodyMap) (io.Reader, string, error) {
 	m := mxj.Map(body)
 	b, err := m.Xml()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return bytes.NewReader(b), nil
+	return bytes.NewReader(b), model.CONTENT_TYPE_XML, nil
 
 }

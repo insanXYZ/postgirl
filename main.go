@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"postgirl/components"
 	"postgirl/lib"
 	"postgirl/model"
@@ -9,9 +10,14 @@ import (
 
 func main() {
 
+	throwError := func(e error) {
+		fmt.Printf("%v\n%v", model.ErrStartApp, "error detail :"+e.Error())
+		os.Exit(0)
+	}
+
 	err := lib.NewClipboard()
 	if err != nil {
-		fmt.Printf("%v\n%v", model.ErrStartApp, "error detail :"+err.Error())
+		throwError(err)
 	}
 
 	components := components.NewComponents()
@@ -20,7 +26,7 @@ func main() {
 	err = lib.Tview.SetRoot(lib.Winman, true).EnableMouse(true).Run()
 
 	if err != nil {
-		fmt.Printf("%v\n%v", model.ErrStartApp, "error detail :"+err.Error())
+		throwError(err)
 	}
 
 }

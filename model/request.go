@@ -30,9 +30,15 @@ const (
 const (
 	NONE                  = "none"
 	FORM_DATA             = "form-data"
-	X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded"
-	JSON                  = "application/json"
-	XML                   = "application/xml"
+	X_WWW_FORM_URLENCODED = "x-www-form-urlencoded"
+	JSON                  = "json"
+	XML                   = "xml"
+)
+
+const (
+	CONTENT_TYPE_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded"
+	CONTENT_TYPE_JSON                  = "application/json"
+	CONTENT_TYPE_XML                   = "application/xml"
 )
 
 var (
