@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"postgirl/components/common"
+	"postgirl/internal/log"
 	"postgirl/lib"
 	"postgirl/model"
 	"postgirl/util"
@@ -195,6 +196,8 @@ func (r *RequestResponsePanel) HandlerSend() {
 
 		resBody = string(b)
 	}
+
+	log.AddLog(fmt.Sprintf("%v %v %v", model.Methods[req.Method], req.Url, res.Status))
 
 	lib.Tview.UpdateDraw(func() {
 		r.response.SetBodyText(resBody)

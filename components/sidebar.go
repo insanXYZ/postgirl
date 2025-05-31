@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"postgirl/color"
 	"postgirl/components/common"
 	"postgirl/internal/cache"
@@ -76,6 +75,23 @@ func (s *Sidebar) showModalAddRequest() {
 		CloseButton: true,
 		TitleAlign:  tview.AlignCenter,
 		Center:      true,
+	})
+}
+
+func (s *Sidebar) showModalLog() {
+	content := common.CreateTextView(&common.TextViewConfig{
+		Text: log.GetStringLogs(),
+	})
+
+	common.ShowModal(&common.ModalConfig{
+		Content:     content,
+		CloseButton: true,
+		Center:      true,
+		Width:       60,
+		Height:      15,
+		Title:       " 📜 Log ",
+		TitleAlign:  tview.AlignCenter,
+		BorderColor: color.BORDER,
 	})
 }
 
@@ -238,11 +254,8 @@ func (s *Sidebar) NewList() {
 	), 3, 1, false)
 	actionsFlex.AddItem(common.CreateEmptyBox(), 1, 1, false)
 	actionsFlex.AddItem(common.CreateButton(&common.ButtonConfig{
-		Label: "#",
-		SelectedFunc: func() {
-			lib.Tview.Stop()
-			fmt.Println(log.GetLogs())
-		},
+		Label:        "#",
+		SelectedFunc: s.showModalLog,
 	}), 3, 1, false)
 	actionsFlex.AddItem(common.CreateEmptyBox(), 1, 1, false)
 
