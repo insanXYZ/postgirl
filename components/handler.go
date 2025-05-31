@@ -156,7 +156,6 @@ func (r *RequestResponsePanel) HandlerSend() {
 		})
 		return
 	}
-	resBody = string(b)
 
 	headerJson, err = util.JsonMarshalString(res.Header)
 	if err != nil {
@@ -166,6 +165,36 @@ func (r *RequestResponsePanel) HandlerSend() {
 		return
 	}
 	r.response.StatusCode = strconv.Itoa(res.StatusCode)
+
+	resBody = string(b)
+
+	contentType := res.Header.Get("Content-Type")
+
+	if strings.Contains(contentType, model.CONTENT_TYPE_JSON) {
+		var unm any
+
+		if err := util.JsonUnmarshal(b, &unm); err == nil {
+			s, err := util.JsonMarshalString(unm)
+			if err == nil {
+				resBody = s
+			}
+		}
+
+	} else if strings.Contains(contentType, model.CONTENT_TYPE_XML) {
+		m, err := util.XmlUnmarshal(b)
+		if err != nil {
+			lib.Tview.Stop()
+			fmt.Println(err.Error())
+		}
+
+		b, err := m.XmlIndent("", " ")
+		if err != nil {
+			lib.Tview.Stop()
+			fmt.Println(err.Error())
+		}
+
+		resBody = string(b)
+	}
 
 	lib.Tview.UpdateDraw(func() {
 		r.response.SetBodyText(resBody)

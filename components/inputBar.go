@@ -22,6 +22,7 @@ type InputBar struct {
 
 func (r *RequestResponsePanel) NewInputUrl() {
 	inputBar := &InputBar{}
+	inputBar.Url = r.currentRequest.Url
 
 	methodDropdown := common.CreateDropdown(&common.DropdownConfig{
 		Options: model.Methods,
