@@ -1,9 +1,11 @@
 package components
 
 import (
+	"fmt"
 	"postgirl/color"
 	"postgirl/components/common"
 	"postgirl/internal/cache"
+	"postgirl/internal/log"
 	"postgirl/lib"
 	"postgirl/model"
 	"postgirl/util"
@@ -232,6 +234,15 @@ func (s *Sidebar) NewList() {
 	actionsFlex.AddItem(common.CreateButton(&common.ButtonConfig{
 		Label:        "i",
 		SelectedFunc: s.showModalInfo,
+	},
+	), 3, 1, false)
+	actionsFlex.AddItem(common.CreateEmptyBox(), 1, 1, false)
+	actionsFlex.AddItem(common.CreateButton(&common.ButtonConfig{
+		Label: "#",
+		SelectedFunc: func() {
+			lib.Tview.Stop()
+			fmt.Println(log.GetLogs())
+		},
 	}), 3, 1, false)
 	actionsFlex.AddItem(common.CreateEmptyBox(), 1, 1, false)
 

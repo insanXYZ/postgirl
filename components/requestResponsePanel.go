@@ -9,6 +9,10 @@ import (
 type RequestResponsePanel struct {
 	currentRequest *model.Request
 
+	// sync params
+	chanToParams   chan string
+	chanToInputUrl chan string
+
 	// inputBar
 	inputBar *InputBar
 	send     chan bool
@@ -26,6 +30,8 @@ type RequestResponsePanel struct {
 func NewRequestResponsePanel(req *model.Request) *tview.Flex {
 	requestResponsePanel := RequestResponsePanel{
 		currentRequest: req,
+		chanToParams:   make(chan string),
+		chanToInputUrl: make(chan string),
 		send:           make(chan bool),
 	}
 

@@ -1,8 +1,11 @@
 package components
 
 import (
+	"fmt"
 	"postgirl/components/common"
 	"postgirl/model"
+	"postgirl/util"
+	"strings"
 
 	"github.com/rivo/tview"
 )
@@ -34,10 +37,36 @@ func (r *RequestResponsePanel) NewInputUrl() {
 		Placeholder: "Enter URL",
 		DefaultText: r.currentRequest.Url,
 		ChangedFunc: func(text string) {
+			r.chanToParams <- text
 			inputBar.Url = text
 		},
 	})
 	inputBar.InputUrl = inputUrl
+
+	go func() {
+		for jsonString := range r.chanToInputUrl {
+			var qParamsMap model.ParamsMap
+
+			err := util.JsonUnmarshal([]byte(jsonString), &qParamsMap)
+			if err == nil && len(qParamsMap) != 0 {
+
+				var arrQuery []string
+
+				for key, vQuery := range qParamsMap {
+					for _, v := range vQuery {
+						arrQuery = append(arrQuery, fmt.Sprintf("%v=%v", key, v))
+					}
+				}
+
+				rawQuery := strings.Join(arrQuery, "&")
+
+				urlSplit := strings.Split(inputBar.InputUrl.GetText(), "?")
+
+				inputBar.InputUrl.SetText(urlSplit[0] + "?" + rawQuery)
+
+			}
+		}
+	}()
 
 	sendButton := common.CreateButton(&common.ButtonConfig{
 		Label: "send",

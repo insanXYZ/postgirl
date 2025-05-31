@@ -3,6 +3,7 @@ package components
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"postgirl/components/common"
@@ -11,6 +12,7 @@ import (
 	"postgirl/util"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/epiclabs-io/winman"
 	"github.com/rivo/tview"
@@ -22,6 +24,8 @@ type Attribute struct {
 	BodyTextArea     *tview.TextArea
 	BodyTypeSelected string
 	Root             *tview.Flex
+
+	mutex sync.Mutex
 }
 
 func (a *Attribute) ShowModalAddFile() {
@@ -188,8 +192,26 @@ func (r *RequestResponsePanel) NewAttribute() {
 	})
 	paramsTextArea := common.CreateTextArea(&common.TextAreaConfig{
 		Border: true,
+		ChangedFunc: func(s string) {
+			r.chanToInputUrl <- s
+		},
 	})
 	attr.ParamsTextArea = paramsTextArea
+
+	go func() {
+		for urlString := range r.chanToParams {
+			url, err := url.Parse(urlString)
+
+			if err == nil {
+				queries := url.Query()
+				jsonString, err := util.JsonMarshalString(queries)
+				if err == nil {
+					paramsTextArea.SetText(jsonString, true)
+				}
+			}
+		}
+	}()
+
 	if stringParams, err := util.JsonMarshalString(r.currentRequest.Attribute.Params); err == nil {
 		paramsTextArea.SetText(stringParams, false)
 	}

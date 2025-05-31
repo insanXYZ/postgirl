@@ -16,7 +16,13 @@ type InputFieldConfig struct {
 func CreateInputField(cfg *InputFieldConfig) *tview.InputField {
 	inputField := tview.NewInputField()
 	inputField.SetPlaceholder(cfg.Placeholder)
-	inputField.SetChangedFunc(cfg.ChangedFunc)
+	if cfg.ChangedFunc != nil {
+		inputField.SetChangedFunc(func(text string) {
+			if inputField.HasFocus() {
+				cfg.ChangedFunc(text)
+			}
+		})
+	}
 	inputField.SetText(cfg.DefaultText)
 	inputField.SetTitleColor(color.LABEL)
 

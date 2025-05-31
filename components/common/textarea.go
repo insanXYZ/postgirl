@@ -10,6 +10,7 @@ import (
 
 type TextAreaConfig struct {
 	DefaultValue string
+	ChangedFunc  func(s string)
 	Border       bool
 }
 
@@ -20,6 +21,14 @@ func CreateTextArea(cfg *TextAreaConfig) *tview.TextArea {
 	textArea.SetBorderColor(color.BORDER)
 	textArea.SetBackgroundColor(color.BACKGROUND)
 	textArea.SetTitleColor(tcell.ColorYellow)
+	if cfg.ChangedFunc != nil {
+		textArea.SetChangedFunc(func() {
+			if textArea.HasFocus() {
+				s := textArea.GetText()
+				cfg.ChangedFunc(s)
+			}
+		})
+	}
 	textArea.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlB {
 			s, _, _ := textArea.GetSelection()
